@@ -2,10 +2,13 @@
 """
 ThemeHorror - the layer Haunt wears while its director is armed.
 
-Blood moon (every phase), heavier rain, a vignette that closes in, every menu click a
-chest lid falling shut - and blood hearts that drip, painted on the STATE sprites only
-(absorbing, blinking, frozen), so they show during a Haunt moment (the `absorbing` cue
-ServerMenus plays on the victim) and never fight another theme over the everyday hearts. All of it derived from
+A companion layer that stays loaded and paints only STATES the server puts a player in,
+so Haunt can switch the look on and off per player without a pack reload anyone could
+see: blood hearts that drip on the absorbing / blinking / frozen heart sprites (the cues
+Haunt plays on a victim), and the NEW MOON repainted as a blood moon - the `bloodmoon`
+cue shifts a player's sky to that phase while the director is armed. A natural new-moon
+night shows the blood moon to everyone with the pack, one night in eight. Nothing
+everyday is touched, so it never fights another theme over a file. All of it derived from
 the vanilla textures in the installed client jar at build time; the sound is a
 remap of vanilla sound events, no audio shipped. Pushed and popped by the Haunt
 plugin through ServerMenus' `/lookpacks ThemeHorror on|off`.
@@ -19,10 +22,8 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "ThemeHorror"
-VERSION = "1.1.1"      # bumped with ../bump.py, never by hand
+VERSION = "2.0.0"      # bumped with ../bump.py, never by hand
 
-MOONS = ["new_moon", "waxing_crescent", "first_quarter", "waxing_gibbous",
-         "full_moon", "waning_gibbous", "third_quarter", "waning_crescent"]
 DRIP = (120, 8, 8, 255)
 
 
@@ -54,30 +55,13 @@ def hearts(z, files):
 
 
 def moons(z, files):
-    for phase in MOONS:
-        img = T.texture(z, f"environment/celestial/moon/{phase}.png")
-        if img is None:
-            continue
-        # the disc turns blood red: red held, green and blue almost gone; the black sky stays black
-        img = T.map_pixels(img, lambda r, g, b, a: (r * 0.95 + 25 if max(r, g, b) > 30 else r, g * 0.18, b * 0.15, a))
-        files[f"assets/minecraft/textures/environment/celestial/moon/{phase}.png"] = T.png_encode(*img)
-
-
-def weather(z, files):
-    img = T.texture(z, "environment/rain.png")
-    if img is not None:
-        files["assets/minecraft/textures/environment/rain.png"] = T.png_encode(*T.multiply(img, 0.5, 0.45, 0.5))
-
-
-def vignette(z, files):
-    # the vanilla vignette is an opaque grey darkness map, white at the corners: push it
-    # inwards and lift the floor so the whole screen sits in a little gloom
-    img = T.texture(z, "misc/vignette.png")
+    """Only the new moon: the full moon disc, blood red, stands in the phase the bloodmoon cue
+    parks a player's sky on. Every other phase stays vanilla."""
+    img = T.texture(z, "environment/celestial/moon/full_moon.png")
     if img is None:
-        img = T.radial(256, 256, lambda d: (d * 210, d * 210, d * 210, 255))
-    img = T.map_pixels(img, lambda r, g, b, a: (r * 1.7 + 24, g * 1.7 + 24, b * 1.7 + 24, a))
-    files["assets/minecraft/textures/misc/vignette.png"] = T.png_encode(*img)
-    files["assets/minecraft/textures/misc/vignette.png.mcmeta"] = b'{\n  "texture": {\n    "blur": true\n  }\n}\n'
+        return
+    img = T.map_pixels(img, lambda r, g, b, a: (r * 0.95 + 25 if max(r, g, b) > 30 else r, g * 0.18, b * 0.15, a))
+    files["assets/minecraft/textures/environment/celestial/moon/new_moon.png"] = T.png_encode(*img)
 
 
 def pack_icon():
@@ -98,9 +82,6 @@ def derive(z):
     files = {}
     hearts(z, files)
     moons(z, files)
-    weather(z, files)
-    vignette(z, files)
-    files["assets/minecraft/sounds.json"] = T.sounds({"ui.button.click": ("block.chest.close", 0.55, 0.9)}).encode()
     return files
 
 
@@ -108,7 +89,7 @@ def build(version=None):
     version = version or VERSION
     z = T.jar()
     files = derive(z)
-    out, from_jar = T.ship(HERE, NAME, version, "blood moon, dripping hearts, closing dark", files, pack_icon())
+    out, from_jar = T.ship(HERE, NAME, version, "blood hearts and a blood moon, on cue", files, pack_icon())
     return out, len(files), from_jar
 
 

@@ -135,7 +135,8 @@ def sun(rows, z, files, side):
 
 
 def moon(rows, z, files, side):
-    img = decoded(files, "assets/minecraft/textures/environment/celestial/moon/full_moon.png") or T.texture(z, "environment/celestial/moon/full_moon.png")
+    # the layer paints the new moon; the vanilla side shows a full moon, the phase a player is parked on
+    img = decoded(files, "assets/minecraft/textures/environment/celestial/moon/new_moon.png") or T.texture(z, "environment/celestial/moon/full_moon.png")
     if img:
         blit(rows, img, (0 if side == 0 else W // 2 + 1) + 14, 40, 1)
 

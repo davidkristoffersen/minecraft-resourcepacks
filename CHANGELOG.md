@@ -2,6 +2,14 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.2.3
+
+Horror preview shows the repainted new moon.
+
+## ThemeHorror 2.0.0
+
+A companion layer that stays loaded: only state sprites (absorbing/blinking/frozen hearts) and the new moon as a blood moon for the bloodmoon cue. Rain, vignette, the other moons and the click sound are gone - nothing everyday is touched, so Haunt switches the look per player with no pack reload.
+
 ## ServerUI 1.2.2
 
 Horror preview follows the darker blood hearts.

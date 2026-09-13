@@ -1,16 +1,18 @@
 # ThemeHorror
 
-The layer the Haunt plugin wears while its director is armed, for Minecraft Java
-26.2+, **no mods**.
+The Haunt plugin's companion layer, for Minecraft Java 26.2+, **no mods**.
 
-Download: [`ThemeHorror-1.1.1.zip`](ThemeHorror-1.1.1.zip)
+Download: [`ThemeHorror-2.0.0.zip`](ThemeHorror-2.0.0.zip)
 
-Blood moon in every phase, heavier rain, a vignette that closes in, every menu click
-a chest lid falling shut - and dripping blood hearts painted on the *state* sprites
-only (absorbing, blinking, frozen), so they appear during a Haunt moment, when the
-server plays the `absorbing` cue on the victim, and never fight another theme over the
-everyday hearts. Everything is derived
-from the vanilla textures in the installed client jar when the pack is built, and the
-click is a remap of vanilla sound events - no audio is shipped. Haunt pushes it with
-`/lookpacks ThemeHorror on` when the director arms and pops it when it disarms.
+A layer that stays loaded and paints only *states* the server puts a player in, so
+Haunt can switch the look per player without a pack reload anyone could notice:
+
+- blood hearts that drip on the absorbing, blinking and frozen heart sprites - the
+  cues Haunt plays on a victim during an event;
+- the new moon repainted as a blood moon - the `bloodmoon` cue parks a player's sky
+  on that phase while the director is armed. A natural new-moon night shows it to
+  everyone with the pack, one night in eight.
+
+Nothing everyday is touched, so it never fights another theme over a file. Derived
+from the vanilla textures in the installed client jar when the pack is built.
 `python3 build.py` builds; shared code lives in `../themelib.py`.
