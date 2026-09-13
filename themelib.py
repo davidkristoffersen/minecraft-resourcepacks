@@ -232,6 +232,38 @@ def sounds(mapping):
     return json.dumps(out, indent=2) + "\n"
 
 
+GLYPH_CELL = 256   # the client stitches font glyphs into 256x256 textures; a bigger glyph is silently dropped
+
+
+def font_picture(files, namespace, font, img, height, ascent, first=0xE000):
+    """Ship an RGBA picture as glyphs of the pack's OWN font `<namespace>:<font>` and return the string
+    that draws it. The server sends that string as text - a title, an action bar, a boss bar name, a
+    dialog body, a book, a lore line - so the picture exists exactly when the server says so and no
+    vanilla state ever shows it; that is what makes it the mechanism for a conditional look (see
+    CLAUDE.md, "Conditional looks"). The image is cut into a row of cells no wider than 256 px, because
+    the client stitches glyphs into 256x256 textures and drops one that does not fit without a word in
+    the log (the char then draws as the missing-glyph box); the image may be at most 256 px tall - a
+    text line cannot stack cells vertically. `height` is the drawn height in GUI units (the cells scale
+    to it, width follows), `ascent` how far above the baseline the top sits: for a title, which draws
+    at (-w/2, -10) scaled 4x around the screen centre, ascent = height/2 - 10 centres it. Several
+    pictures may share one font: call again with the next free `first`; the .json is merged. Never
+    put a picture into minecraft:default - ServerUI owns that file, and two packs cannot both ship it."""
+    w, h, rows = img
+    if h > GLYPH_CELL:
+        raise ValueError(f"font_picture: {h} px tall, a glyph cell is at most {GLYPH_CELL}")
+    n = -(-w // GLYPH_CELL)                  # cells across
+    cw = -(-w // n)                          # each cell's width, the image padded to n * cw
+    padded = [bytearray(row) + bytes(4 * (n * cw - w)) for row in rows]
+    files[f"assets/{namespace}/textures/font/{font}.png"] = png_encode(n * cw, h, padded)
+    chars = "".join(chr(first + i) for i in range(n))
+    provider = {"type": "bitmap", "file": f"{namespace}:font/{font}.png", "height": height, "ascent": ascent, "chars": [chars]}
+    path = f"assets/{namespace}/font/{font}.json"
+    providers = json.loads(files[path])["providers"] if path in files else []
+    providers = [p for p in providers if p.get("file") != provider["file"]] + [provider]
+    files[path] = (json.dumps({"providers": providers}, ensure_ascii=True) + "\n").encode("utf-8")
+    return chars
+
+
 def ship(here, name, version, description, files, icon_png):
     """Write src/ and <name>-<version>.zip next to build.py (older zips removed), fixed
     timestamps so the same art gives the same sha1. files: {"assets/...": bytes}."""

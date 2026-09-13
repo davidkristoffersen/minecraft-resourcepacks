@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## ThemeHorror 2.3.2
+
+veins shipped through themelib.font_picture, the generic font-picture helper
+
 ## ServerUI 1.7.1
 
 veins panel redrawn from the split bitmap

@@ -25,7 +25,7 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "ThemeHorror"
-VERSION = "2.3.1"      # bumped with ../bump.py, never by hand
+VERSION = "2.3.2"      # bumped with ../bump.py, never by hand
 
 DRIP = (120, 8, 8, 255)
 
@@ -87,10 +87,9 @@ def food(z, files):
         files[f"assets/minecraft/textures/gui/sprites/hud/{kind}.png"] = T.png_encode(*img)
 
 
-# The client stitches font glyphs into 256x256 textures and silently drops one that does not fit (the
-# char then draws as the missing-glyph box), so the picture is TWO 256x256 glyphs side by side, one
-# continuous drawing across a 512x256 bitmap, sent as the string U+E000 U+E001. Declared 150 units
-# tall each, so 150 wide: 300x150 units, x4 as a title = 1200x600 GUI px.
+# 512x256: themelib.font_picture cuts it into two 256x256 cells (the client's glyph-texture limit),
+# U+E000 U+E001, one continuous drawing. Declared 150 units tall each, so 150 wide: 300x150 units,
+# x4 as a title = 1200x600 GUI px.
 VEINS_W, VEINS_H = 512, 256
 VEINS_HEIGHT, VEINS_ASCENT = 150, 65   # a title draws at (-w/2, -10) scaled 4x around the screen centre: ascent = h/2 - 10 centres it
 
@@ -144,10 +143,9 @@ def veins(z, files):
             a = min(200, c * 200 // 255)
             row[x * 4:x * 4 + 4] = bytes((int(110 + 90 * c / 255), int(6 + 8 * c / 255), int(6 + 6 * c / 255), a))
         out.append(row)
-    files["assets/themehorror/textures/font/veins.png"] = T.png_encode(w, h, out)
-    files["assets/themehorror/font/veins.json"] = (
-        '{"providers": [{"type": "bitmap", "file": "themehorror:font/veins.png", "height": %d, "ascent": %d, "chars": ["\\ue000\\ue001"]}]}\n'
-        % (VEINS_HEIGHT, VEINS_ASCENT)).encode()
+    # two 256x256 cells, U+E000 U+E001 - ServerMenus' Cues.VEINS sends exactly that string
+    chars = T.font_picture(files, "themehorror", "veins", (w, h, out), VEINS_HEIGHT, VEINS_ASCENT, first=0xE000)
+    assert chars == "\ue000\ue001", chars
 
 
 def moons(z, files):
