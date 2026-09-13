@@ -2,6 +2,18 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.9.2
+
+Banner glyphs hang into the dialog's own spacing (ascent 10/9): one body line, no blank lines
+
+## ServerUI 1.9.1
+
+Camera panel shows the film card too: three items a side at 2x
+
+## Camera 1.1.0
+
+Film: the blank polaroid the plugin's cheap film wears (items/map.json override, vanilla empty map as the fallback)
+
 ## ServerUI 1.9.0
 
 Hub header banners: fading wings (U+E220/E221) and the icons at 3x in serverui:gui, positive spaces U+F809..F810, preview panel E118

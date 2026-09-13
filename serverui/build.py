@@ -75,7 +75,7 @@ import zipfile
 import zlib
 
 NAME = "ServerUI"
-VERSION = "1.9.0"         # bumped with ../bump.py, never by hand
+VERSION = "1.9.2"         # bumped with ../bump.py, never by hand
 HERE = pathlib.Path(__file__).parent
 SRC = HERE / "src"
 DIST = HERE / "dist"
@@ -830,9 +830,11 @@ GUI_ASCENT = 13
 # ("🧩" in font serverui:gui is the big icon). Sent in the hub's colour; a body row 300 wide.
 BANNER_W, BANNER_H = 132, 24
 BANNER_LEFT, BANNER_RIGHT = 0xE220, 0xE221
-BANNER_ASCENT = 7            # hangs from its line like the previews: the menu pads two blank lines under it
+BANNER_ASCENT = 10           # the glyph is 24 px in a 9 px line: 3 px above the line top (inside the text
+                             # widget's 4 px padding), 11 px below its 17 px element (into the 10 px layout
+                             # spacing + the next element's padding) - no blank lines needed, DialogScreen 26.2
 BIG_SCALE = 3
-BIG_ASCENT = 6                # the 3x art (rows 0-20 of 24) centred on the wings' rule, which sits 5 px under the baseline
+BIG_ASCENT = 9                # the 3x art (rows 0-20 of 24) centred on the wings' rule: one px lower than the wings' top
 
 
 def gui_height(rows):

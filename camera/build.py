@@ -24,8 +24,13 @@ back as the fallback:
                                              carries its own light)
       otherwise                           -> the vanilla filled map, unchanged
 
+  assets/minecraft/items/map.json
+      custom_model_data flag 0 set        -> film: the same card before a picture is on it, a dark
+                                             undeveloped window with a sheen and the camera's stripe
+      otherwise                           -> the vanilla empty map, unchanged
+
 The plugin writes exactly those components: floats [film count], flags [flashing] on the
-camera, flags [true] plus map_color on a photo. Real recovery compasses and real maps
+camera, flags [true] plus map_color on a photo, flags [true] on film (an empty map underneath). Real recovery compasses and real maps
 carry no custom_model_data and hit the fallback, which is read from the installed client
 jar at build time so it is always the running version's own definition.
 
@@ -56,7 +61,7 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "Camera"
-VERSION = "1.0.0"         # bumped with ../bump.py, never by hand
+VERSION = "1.1.0"         # bumped with ../bump.py, never by hand
 
 PALETTE = {
     ".": None,
@@ -133,6 +138,27 @@ POLAROID_CARD = [
     "..PPPPPPPPPPPP..",
 ]
 
+# Film: the card before anything is on it - the window an undeveloped dark slate with one
+# sheen line, the camera's stripe where a photo carries its scribble.
+FILM = [
+    "..PPPPPPPPPPPP..",
+    "..PppppppppppP..",
+    "..PpvvvvvvvvpP..",
+    "..PpvvvvvvvfpP..",
+    "..PpvvvvvvfvpP..",
+    "..PpvvvvvfvvpP..",
+    "..PpvvvvfvvvpP..",
+    "..PpvvvfvvvvpP..",
+    "..PpvvvvvvvvpP..",
+    "..PpvvvvvvvvpP..",
+    "..PppppppppppP..",
+    "..PppppppppppP..",
+    "..Ppp12345pppP..",
+    "..PppppppppppP..",
+    "..PppppppppppP..",
+    "..PPPPPPPPPPPP..",
+]
+
 # The polaroid, layer 1: the picture, greys from light at the top to darker at the bottom,
 # tinted by map_color on the client. A brighter square top right reads as the sky's light.
 POLAROID_PICTURE = [
@@ -193,6 +219,7 @@ def textures():
         "camera_flash": camera_state("flash"),
         "polaroid": sprite(POLAROID_CARD),
         "polaroid_picture": sprite(POLAROID_PICTURE),
+        "film": sprite(FILM),
     }
 
 
@@ -247,6 +274,15 @@ def polaroid_definition(z):
     }}
 
 
+def film_definition(z):
+    return {"model": {
+        "type": "minecraft:condition",
+        "property": "minecraft:custom_model_data", "index": 0,
+        "on_true": model("film"),
+        "on_false": vanilla_definition(z, "map"),
+    }}
+
+
 def item_model(*layers):
     return {"parent": "minecraft:item/generated",
             "textures": {f"layer{i}": f"camera:item/{name}" for i, name in enumerate(layers)}}
@@ -257,7 +293,7 @@ def preview(scale=8):
     of a sunny day would be - written next to this script as preview.png."""
     tex = textures()
     shown = [tex["camera_empty"], tex["camera_loaded"], tex["camera_flash"], tex["polaroid"],
-             tex["polaroid_picture"], tinted(tex["polaroid_picture"], (120, 170, 220))]
+             tex["polaroid_picture"], tinted(tex["polaroid_picture"], (120, 170, 220)), tex["film"]]
     pad = 8
     w = (len(shown) * (16 + pad) + pad) * scale
     h = (16 + 2 * pad) * scale
@@ -291,12 +327,13 @@ def build(version=None):
     files = {}
     for name, img in tex.items():
         files[f"assets/camera/textures/item/{name}.png"] = T.png_encode(*img)
-    for name in ("camera_empty", "camera_loaded", "camera_flash"):
+    for name in ("camera_empty", "camera_loaded", "camera_flash", "film"):
         files[f"assets/camera/models/item/{name}.json"] = (json.dumps(item_model(name), indent=2) + "\n").encode()
     files["assets/camera/models/item/polaroid.json"] = (
         json.dumps(item_model("polaroid", "polaroid_picture"), indent=2) + "\n").encode()
     files["assets/minecraft/items/recovery_compass.json"] = (json.dumps(camera_definition(z), indent=2) + "\n").encode()
     files["assets/minecraft/items/filled_map.json"] = (json.dumps(polaroid_definition(z), indent=2) + "\n").encode()
+    files["assets/minecraft/items/map.json"] = (json.dumps(film_definition(z), indent=2) + "\n").encode()
 
     cam = tex["camera_loaded"]
 
