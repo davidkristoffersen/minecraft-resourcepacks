@@ -19,7 +19,7 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "ThemeHorror"
-VERSION = "1.1.0"      # bumped with ../bump.py, never by hand
+VERSION = "1.1.1"      # bumped with ../bump.py, never by hand
 
 MOONS = ["new_moon", "waxing_crescent", "first_quarter", "waxing_gibbous",
          "full_moon", "waning_gibbous", "third_quarter", "waning_crescent"]
@@ -35,7 +35,7 @@ DRIP = (120, 8, 8, 255)
 HEART_STATES = ["absorbing_full", "absorbing_half", "absorbing_full_blinking", "absorbing_half_blinking",
                 "full_blinking", "half_blinking",
                 "frozen_full", "frozen_half", "frozen_full_blinking", "frozen_half_blinking"]
-BLOOD = (0.72, 0.06, 0.06)
+BLOOD = (0.52, 0.03, 0.03)   # dark enough to read as blood next to a vanilla heart, not just 'red'
 
 
 def hearts(z, files):

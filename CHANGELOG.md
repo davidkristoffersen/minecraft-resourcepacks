@@ -2,6 +2,14 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.2.2
+
+Horror preview follows the darker blood hearts.
+
+## ThemeHorror 1.1.1
+
+Darker blood on the state hearts - the first shade read as plain red beside a vanilla heart.
+
 ## ServerUI 1.2.1
 
 ThemeHorror's preview shows the absorbing (event) hearts on the 'with' side.

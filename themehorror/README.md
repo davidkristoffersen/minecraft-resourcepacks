@@ -3,7 +3,7 @@
 The layer the Haunt plugin wears while its director is armed, for Minecraft Java
 26.2+, **no mods**.
 
-Download: [`ThemeHorror-1.1.0.zip`](ThemeHorror-1.1.0.zip)
+Download: [`ThemeHorror-1.1.1.zip`](ThemeHorror-1.1.1.zip)
 
 Blood moon in every phase, heavier rain, a vignette that closes in, every menu click
 a chest lid falling shut - and dripping blood hearts painted on the *state* sprites
