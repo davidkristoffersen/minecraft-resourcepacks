@@ -29,7 +29,7 @@ PREVIEWS = {
     "ThemeCalm": [("hud", 0xE102)],
     "ThemeLab": [("hud", 0xE103)],
     "ThemeHorror": [("moon", 0xE104), ("absorbing", 0xE110), ("frozen", 0xE111), ("blink", 0xE112),
-                    ("hunger", 0xE113), ("nausea", 0xE114)],
+                    ("hunger", 0xE113), ("frost", 0xE115)],
 }
 
 HUD_BACK = (36, 40, 50, 255)
@@ -178,26 +178,28 @@ def panel_food(z, files):
     return W, H, rows
 
 
-def panel_nausea(z, files):
-    """The overlay as the client renders it at full strength: added to a dark scene, multiplied by
-    the client's own tint of (0.2, 0.4, 0.2) - vanilla's grey mask | the layer's. The shape shows
-    at 1x of the picture; in game it closes in from 2x as the effect builds."""
+def panel_frost(z, files):
+    """The frozen cue's screen border as the client draws it at 100 % frozen: the overlay laid over
+    a dark scene with normal blending - vanilla's frost | the layer's veins."""
     SCENE = (38, 42, 54)
     rows = canvas((*SCENE, 255))
-    van = T.texture(z, "misc/nausea.png")
-    ours = decoded(files, "assets/minecraft/textures/misc/nausea.png") or van
+    van = T.texture(z, "misc/powder_snow_outline.png")
+    ours = decoded(files, "assets/minecraft/textures/misc/powder_snow_outline.png") or van
     for side, img in ((0, van), (1, ours)):
         if not img:
             continue
         w, h, src = img
-        x0, y0 = (0 if side == 0 else W // 2 + 1), 0
-        pw, ph = (W // 2 if side == 0 else W - x0), H     # the right panel is one column narrower (the divider)
+        x0 = 0 if side == 0 else W // 2 + 1
+        pw, ph = (W // 2 if side == 0 else W - x0), H
         for py in range(ph):
             for px in range(pw):
-                sx, sy = px * w // pw, py * h // ph      # the texture stretched over the whole panel, as over a screen
-                r, g, b = src[sy][sx * 4:sx * 4 + 3]
-                rows[y0 + py][(x0 + px) * 4:(x0 + px) * 4 + 4] = bytes((
-                    T.clamp(SCENE[0] + r * 0.2), T.clamp(SCENE[1] + g * 0.4), T.clamp(SCENE[2] + b * 0.2), 255))
+                sx, sy = px * w // pw, py * h // ph      # the texture stretched over the panel, as over a screen
+                r, g, b, a = src[sy][sx * 4:sx * 4 + 4]
+                if a == 0:
+                    continue
+                f = a / 255
+                rows[py][(x0 + px) * 4:(x0 + px) * 4 + 4] = bytes((
+                    T.clamp(SCENE[0] * (1 - f) + r * f), T.clamp(SCENE[1] * (1 - f) + g * f), T.clamp(SCENE[2] * (1 - f) + b * f), 255))
     divider(rows)
     return W, H, rows
 
@@ -268,7 +270,7 @@ def previews(sheet_png):
         out[("ThemeHorror", "frozen")] = panel_hearts(z, horror, "frozen_full")
         out[("ThemeHorror", "blink")] = panel_hearts(z, horror, "full_blinking")
         out[("ThemeHorror", "hunger")] = panel_food(z, horror)
-        out[("ThemeHorror", "nausea")] = panel_nausea(z, horror)
+        out[("ThemeHorror", "frost")] = panel_frost(z, horror)
     out[("ServerUI", "icons")] = preview_serverui(sheet_png)
     return out
 

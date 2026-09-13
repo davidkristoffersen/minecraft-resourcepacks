@@ -41,10 +41,14 @@ def png_decode(data):
         elif typ == b"tRNS":
             transparency = chunk
         pos += 12 + ln
-    if depth != 8:
-        raise ValueError(f"expected 8 bits per channel, got {depth}")
+    if depth != 8 and not (depth in (1, 2, 4) and colour in (0, 3)):
+        raise ValueError(f"unsupported PNG: {depth} bits, colour type {colour}")
     channels = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}[colour]
-    raw, stride, lines, prev, i = zlib.decompress(idat), w * channels, [], bytearray(w * channels), 0
+    # sub-byte greyscale/palette rows pack several pixels per byte; filters work on whole bytes
+    stride = w * channels if depth == 8 else (w * depth + 7) // 8
+    raw, lines, prev, i = zlib.decompress(idat), [], bytearray(stride), 0
+    if depth != 8:
+        channels = 1
     for _ in range(h):
         filt, line, i = raw[i], bytearray(raw[i + 1:i + 1 + stride]), i + 1 + stride
         for x in range(stride):
@@ -61,8 +65,15 @@ def png_decode(data):
                 p = a + b - c
                 pa, pb, pc = abs(p - a), abs(p - b), abs(p - c)
                 line[x] = (line[x] + (a if pa <= pb and pa <= pc else b if pb <= pc else c)) & 255
-        lines.append(bytearray(line))
         prev = line
+        if depth != 8:   # unpack to one byte per pixel; greyscale values scaled to 0..255
+            per, mask, full = 8 // depth, (1 << depth) - 1, (1 << depth) - 1
+            unpacked = bytearray(w)
+            for x in range(w):
+                v = (line[x // per] >> (8 - depth * (x % per + 1))) & mask
+                unpacked[x] = v * 255 // full if colour == 0 else v
+            line = unpacked
+        lines.append(bytearray(line))
     rows = []
     for line in lines:
         row = bytearray(w * 4)

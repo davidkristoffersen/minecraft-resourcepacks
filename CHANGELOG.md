@@ -2,6 +2,14 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.5.0
+
+frost-border panel for ThemeHorror replaces the nausea one
+
+## ThemeHorror 2.2.0
+
+blood veins on the frozen cue's screen border; the nausea paint dropped (additive, tinted by the client)
+
 ## ServerUI 1.4.2
 
 nausea preview panel wrote past the row end - a corrupt PNG the client rejected, failing every pack

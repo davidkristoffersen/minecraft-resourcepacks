@@ -126,11 +126,11 @@
     },
     {
       "type": "bitmap",
-      "file": "serverui:font/preview_themehorror_nausea.png",
+      "file": "serverui:font/preview_themehorror_frost.png",
       "height": 72,
       "ascent": 7,
       "chars": [
-        ""
+        ""
       ]
     },
     {
