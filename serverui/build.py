@@ -75,7 +75,7 @@ import zipfile
 import zlib
 
 NAME = "ServerUI"
-VERSION = "1.7.1"         # bumped with ../bump.py, never by hand
+VERSION = "1.8.0"         # bumped with ../bump.py, never by hand
 HERE = pathlib.Path(__file__).parent
 SRC = HERE / "src"
 DIST = HERE / "dist"
@@ -808,6 +808,106 @@ def pack_icon(table):
     return _png_encode(size, size, rows)
 
 
+# ---------------------------------------------------------------- chest grid frames (font serverui:gui)
+#
+# A container title is a Component, and in 26.2 the client draws the labels BEFORE the slots
+# (AbstractContainerScreen.extractRenderState: extractLabels, then extractSlots), so a glyph in the
+# title is a full background the items sit on. The generic container is 176 x (114 + 18 rows) GUI
+# px, the title starts at (8, 6), a bitmap glyph's top sits at y + 7 - ascent, so ascent 13 puts it
+# on the container's top edge and a negative space of 8 puts it on the left edge; a glyph advances
+# by its width + 1, so 177 back returns the cursor and 169 back lands the title text at x = 8 again.
+# Two pictures per row count: the neutral panel (sent WHITE) and the accent (sent in the screen's
+# colour - a font glyph is tinted by its text colour, so one drawing serves every domain).
+# The space provider carries negative advances -1, -2, -4 ... -128 at U+F801..F808 to compose any
+# step. All of it lives in its own font serverui:gui, never in default.json.
+GUI_W = 176
+GUI_BASE, GUI_ACCENT, GUI_SPACE = 0xE200, 0xE210, 0xF800
+GUI_ASCENT = 13
+
+
+def gui_height(rows):
+    return 114 + 18 * rows
+
+
+def gui_slots(rows):
+    """Every slot square (x, y) of a generic container with that many rows: the grid, then the
+    player's inventory and hotbar below - the client draws its items over our picture."""
+    out = [(7 + 18 * c, 17 + 18 * r) for r in range(rows) for c in range(9)]
+    out += [(7 + 18 * c, 30 + 18 * rows + 18 * r) for r in range(3) for c in range(9)]
+    out += [(7 + 18 * c, 88 + 18 * rows) for c in range(9)]
+    return out
+
+
+def _fill(rows_, x0, y0, w, h, rgba):
+    for y in range(y0, y0 + h):
+        for x in range(x0, x0 + w):
+            rows_[y][x * 4:x * 4 + 4] = bytes(rgba)
+
+
+def gui_pictures(rows):
+    """(neutral, accent) RGBA images for a grid of `rows` rows, each (w, h, rows)."""
+    w, h = GUI_W, gui_height(rows)
+    neutral = [bytearray(w * 4) for _ in range(h)]
+    accent = [bytearray(w * 4) for _ in range(h)]
+    # the panel: a dark plate with a one-pixel rim, rounded corners left clear like vanilla's
+    _fill(neutral, 0, 0, w, h, (44, 46, 52, 255))
+    _fill(neutral, 0, 0, w, 1, (18, 18, 22, 255)); _fill(neutral, 0, h - 1, w, 1, (18, 18, 22, 255))
+    _fill(neutral, 0, 0, 1, h, (18, 18, 22, 255)); _fill(neutral, w - 1, 0, 1, h, (18, 18, 22, 255))
+    _fill(neutral, 1, 1, w - 2, 1, (70, 72, 80, 255)); _fill(neutral, 1, 1, 1, h - 2, (70, 72, 80, 255))
+    for (cx, cy) in ((0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)):
+        neutral[cy][cx * 4:cx * 4 + 4] = bytes(4)
+    # the title band
+    _fill(neutral, 2, 2, w - 4, 15, (56, 58, 66, 255))
+    # slots: an inset square, dark with the lit edge at the bottom right like vanilla's
+    for (sx, sy) in gui_slots(rows):
+        _fill(neutral, sx, sy, 18, 18, (28, 29, 34, 255))
+        _fill(neutral, sx, sy, 18, 1, (16, 16, 20, 255)); _fill(neutral, sx, sy, 1, 18, (16, 16, 20, 255))
+        _fill(neutral, sx + 1, sy + 17, 17, 1, (74, 76, 86, 255)); _fill(neutral, sx + 17, sy + 1, 1, 17, (74, 76, 86, 255))
+        _fill(neutral, sx + 1, sy + 1, 16, 16, (34, 35, 41, 255))
+    # the accent, tinted by the screen's colour: a wash over the title band that fades to the right,
+    # a line under it, a frame round the grid rows (not the player's own inventory)
+    for x in range(2, w - 2):
+        a = int(150 * (1 - (x - 2) / (w - 4)) ** 1.4) + 20
+        for y in range(2, 17):
+            accent[y][x * 4:x * 4 + 4] = bytes((255, 255, 255, a))
+    _fill(accent, 2, 16, w - 4, 1, (255, 255, 255, 230))
+    gy0, gy1 = 17, 17 + 18 * rows
+    _fill(accent, 6, gy0 - 1, w - 12, 1, (255, 255, 255, 120)); _fill(accent, 6, gy1, w - 12, 1, (255, 255, 255, 120))
+    _fill(accent, 6, gy0 - 1, 1, gy1 - gy0 + 2, (255, 255, 255, 120)); _fill(accent, w - 7, gy0 - 1, 1, gy1 - gy0 + 2, (255, 255, 255, 120))
+    return (w, h, neutral), (w, h, accent)
+
+
+def gui_font(tex_dir, font_dir=None):
+    """Write the frames and serverui:gui; returns the provider list (for the record)."""
+    providers = [{"type": "space", "advances": {chr(GUI_SPACE + k): -(1 << (k - 1)) for k in range(1, 9)}}]
+    for rows in range(1, 7):
+        neutral, accent = gui_pictures(rows)
+        for kind, img, cp in (("", neutral, GUI_BASE + rows), ("_accent", accent, GUI_ACCENT + rows)):
+            file = f"grid_{rows}{kind}.png"
+            (tex_dir / file).write_bytes(_png_encode(*img))
+            providers.append({"type": "bitmap", "file": f"serverui:font/{file}", "height": img[1], "ascent": GUI_ASCENT, "chars": [chr(cp)]})
+    # the font is serverui:gui -> assets/serverui/font/gui.json, beside the textures, not under minecraft/
+    own_font_dir = tex_dir.parent.parent / "font"
+    own_font_dir.mkdir(parents=True, exist_ok=True)
+    (own_font_dir / "gui.json").write_text(json.dumps({"providers": providers}, ensure_ascii=True) + "\n", encoding="utf-8")
+    return providers
+
+
+def gui_composite(rows, tint):
+    """Neutral under accent tinted (r, g, b) - what the client shows, for the preview."""
+    (w, h, neutral), (_, _, accent) = gui_pictures(rows)
+    out = [bytearray(r) for r in neutral]
+    for y in range(h):
+        for x in range(w):
+            a = accent[y][x * 4 + 3]
+            if a == 0:
+                continue
+            f = a / 255
+            for c in range(3):
+                out[y][x * 4 + c] = int(out[y][x * 4 + c] * (1 - f) + tint[c] * f)
+    return w, h, out
+
+
 def vanilla_default_font():
     """The client's own font/default.json providers, so ours go in front of exactly
     what the running version ships. Falls back to the 26.x shape when the jar is
@@ -838,6 +938,7 @@ def build(version=None):
     (tex_dir / "icons.png").write_bytes(png)
     bars_png, bar_chars = bars()
     (tex_dir / "bars.png").write_bytes(bars_png)
+    gui_font(tex_dir, font_dir)   # serverui:gui - the chest-grid frames, its own font file
     import previews as pv
     pictures = pv.previews(png)
     preview_providers = []

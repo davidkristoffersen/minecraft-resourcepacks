@@ -26,7 +26,7 @@ ASCENT = 7                     # hangs down from the first line: the menu pads 8
 PREVIEWS = {
     "GlassFrame": [("glass", 0xE100)],
     "Camera": [("items", 0xE120)],
-    "ServerUI": [("icons", 0xE101)],
+    "ServerUI": [("icons", 0xE101), ("grids", 0xE117)],
     "ThemeCalm": [("hud", 0xE102)],
     "ThemeLab": [("hud", 0xE103)],
     # E111 (frozen hearts) and E115 (frost border) are retired: the frozen state is vanilla's again.
@@ -283,6 +283,22 @@ def preview_serverui(sheet_png):
     return W, H, rows
 
 
+def panel_grids(z):
+    """A chest grid's frame: vanilla's generic container on the left, ours (tinted dark red, as the
+    Mob Designer sends it) on the right - the top-left 120 x 64 px of each at 1x."""
+    ui = _load("serverui")
+    rows = canvas(HUD_BACK)
+    van = T.texture(z, "gui/container/generic_54.png")
+    ours = ui.gui_composite(2, (170, 0, 0))
+    for side, img in ((0, van), (1, ours)):
+        if not img:
+            continue
+        piece = crop(img, 0, 0, min(120, img[0]), min(64, img[1]))
+        blit(rows, piece, (0 if side == 0 else W // 2 + 1) + 4, 4, 1)
+    divider(rows)
+    return W, H, rows
+
+
 def previews(sheet_png):
     """{(name, key): (w, h, rows)} for every panel in PREVIEWS that can be drawn."""
     z = T.jar()
@@ -298,6 +314,7 @@ def previews(sheet_png):
         out[("ThemeHorror", "blink")] = panel_hearts(z, horror, "full_blinking")
         out[("ThemeHorror", "hunger")] = panel_food(z, horror)
         out[("ThemeHorror", "veins")] = panel_veins(z, horror)
+        out[("ServerUI", "grids")] = panel_grids(z)
     out[("ServerUI", "icons")] = preview_serverui(sheet_png)
     return out
 

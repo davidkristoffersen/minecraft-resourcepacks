@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.8.0
+
+chest-grid frames in their own font serverui:gui (a panel and an accent per row count, negative spaces)
+
 ## ThemeHorror 2.3.2
 
 veins shipped through themelib.font_picture, the generic font-picture helper

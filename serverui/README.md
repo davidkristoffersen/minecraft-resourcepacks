@@ -3,7 +3,7 @@
 Pixel icons for a Paper server's dialog menus, for Minecraft Java 26.2+, needing
 **no mods**. 2 KB.
 
-Download: [`ServerUI-1.7.1.zip`](ServerUI-1.7.1.zip)
+Download: [`ServerUI-1.8.0.zip`](ServerUI-1.8.0.zip)
 
 ## What it does
 
