@@ -2,6 +2,14 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.7.0
+
+veins panel for ThemeHorror; frozen-heart and frost panels retired
+
+## ThemeHorror 2.3.0
+
+veins as a title glyph in the pack's own font; frozen hearts and frost border back to vanilla
+
 ## ServerUI 1.6.0
 
 Preview panel for the Camera pack (U+E120): the camera and a photo, without | with.

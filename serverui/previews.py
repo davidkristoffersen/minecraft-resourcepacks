@@ -29,8 +29,10 @@ PREVIEWS = {
     "ServerUI": [("icons", 0xE101)],
     "ThemeCalm": [("hud", 0xE102)],
     "ThemeLab": [("hud", 0xE103)],
-    "ThemeHorror": [("moon", 0xE104), ("absorbing", 0xE110), ("frozen", 0xE111), ("blink", 0xE112),
-                    ("hunger", 0xE113), ("frost", 0xE115)],
+    # E111 (frozen hearts) and E115 (frost border) are retired: the frozen state is vanilla's again.
+    # E114 (nausea haze) too. A code point is never reused for a different picture.
+    "ThemeHorror": [("moon", 0xE104), ("absorbing", 0xE110), ("blink", 0xE112),
+                    ("hunger", 0xE113), ("veins", 0xE116)],
 }
 
 HUD_BACK = (36, 40, 50, 255)
@@ -179,22 +181,20 @@ def panel_food(z, files):
     return W, H, rows
 
 
-def panel_frost(z, files):
-    """The frozen cue's screen border as the client draws it at 100 % frozen: the overlay laid over
-    a dark scene with normal blending - vanilla's frost | the layer's veins."""
+def panel_veins(z, files):
+    """The veins glyph as the server sends it (a title over the world): the plain scene | the scene
+    with the glyph's middle laid over it, normal blending."""
     SCENE = (38, 42, 54)
     rows = canvas((*SCENE, 255))
-    van = T.texture(z, "misc/powder_snow_outline.png")
-    ours = decoded(files, "assets/minecraft/textures/misc/powder_snow_outline.png") or van
-    for side, img in ((0, van), (1, ours)):
-        if not img:
-            continue
+    img = decoded(files, "assets/themehorror/textures/font/veins.png")
+    if img:
         w, h, src = img
-        x0 = 0 if side == 0 else W // 2 + 1
-        pw, ph = (W // 2 if side == 0 else W - x0), H
+        x0 = W // 2 + 1
+        pw, ph = W - x0, H
+        sx0, sy0 = (w - pw * 2) // 2, (h - ph * 2) // 2       # the middle of the picture at half size
         for py in range(ph):
             for px in range(pw):
-                sx, sy = px * w // pw, py * h // ph      # the texture stretched over the panel, as over a screen
+                sx, sy = sx0 + px * 2, sy0 + py * 2
                 r, g, b, a = src[sy][sx * 4:sx * 4 + 4]
                 if a == 0:
                     continue
@@ -295,10 +295,9 @@ def previews(sheet_png):
         horror = _load("themehorror").derive(z)
         out[("ThemeHorror", "moon")] = panel_moon(z, horror)
         out[("ThemeHorror", "absorbing")] = panel_hearts(z, horror, "absorbing_full")
-        out[("ThemeHorror", "frozen")] = panel_hearts(z, horror, "frozen_full")
         out[("ThemeHorror", "blink")] = panel_hearts(z, horror, "full_blinking")
         out[("ThemeHorror", "hunger")] = panel_food(z, horror)
-        out[("ThemeHorror", "frost")] = panel_frost(z, horror)
+        out[("ThemeHorror", "veins")] = panel_veins(z, horror)
     out[("ServerUI", "icons")] = preview_serverui(sheet_png)
     return out
 

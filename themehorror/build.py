@@ -4,9 +4,10 @@ ThemeHorror - the layer Haunt wears while its director is armed.
 
 A companion layer that stays loaded and paints only STATES the server puts a player in,
 so Haunt can switch the look on and off per player without a pack reload anyone could
-see: blood hearts that drip on the absorbing / blinking / frozen heart sprites (the cues
-Haunt plays on a victim), the Hunger effect's rotten drumsticks as raw bleeding meat (the
-`hunger` cue), the powder-snow border of the `frozen` cue as veins of blood closing in, and
+see: blood hearts that drip on the absorbing / blinking heart sprites (the cues Haunt
+plays on a victim), the Hunger effect's rotten drumsticks as raw bleeding meat (the
+`hunger` cue), blood veins over the whole screen as a glyph of the pack's own font (the `veins` cue sends
+it as a title - drawn by the server, never by a state), and
 the NEW MOON repainted as a blood moon - the `bloodmoon` cue shifts a player's sky to that
 phase while the director is armed. A natural new-moon
 night shows the blood moon to everyone with the pack, one night in eight. Nothing
@@ -24,20 +25,21 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "ThemeHorror"
-VERSION = "2.2.0"      # bumped with ../bump.py, never by hand
+VERSION = "2.3.0"      # bumped with ../bump.py, never by hand
 
 DRIP = (120, 8, 8, 255)
 
 
 # The hearts this layer paints are the STATE sprites, not the everyday ones: absorbing hearts
-# (ServerMenus' `absorbing` cue, which Haunt plays on a victim for every event), the blinking
-# frames (a fake hurt), the frozen hearts (the freeze events). So blood shows during a Haunt
+# (ServerMenus' `absorbing` cue, which Haunt plays on a victim for every event) and the blinking
+# frames (a fake hurt). So blood shows during a Haunt
 # moment and the everyday hearts stay whatever the everyday theme made them - two layers never
 # fight over full.png. The absorbing sprites are gold and the frozen ones ice blue in vanilla,
-# so they are repainted by brightness rather than tinted.
+# so they are repainted by brightness rather than tinted. (The absorbing sprites are gold in vanilla.)
 HEART_STATES = ["absorbing_full", "absorbing_half", "absorbing_full_blinking", "absorbing_half_blinking",
-                "full_blinking", "half_blinking",
-                "frozen_full", "frozen_half", "frozen_full_blinking", "frozen_half_blinking"]
+                "full_blinking", "half_blinking"]
+# NOT the frozen hearts or the frost border: a real freeze (powder snow, Toolbox's freeze trick) is a
+# vanilla state players reach without Haunt, and a layer cannot tell it from the frozen cue
 BLOOD = (0.52, 0.03, 0.03)   # dark enough to read as blood next to a vanilla heart, not just 'red'
 
 
@@ -85,51 +87,63 @@ def food(z, files):
         files[f"assets/minecraft/textures/gui/sprites/hud/{kind}.png"] = T.png_encode(*img)
 
 
-def frost(z, files):
-    """The powder-snow border (`frozen` cue): vanilla frames the screen in frost, drawn with normal
-    blending at the alpha of how frozen you are (Hud.extractTextureOverlay, `ARGB.white(percent)`) -
-    the frozen cue holds that at 100 %. So this is a full-colour overlay a pack owns outright: veins
-    of blood reaching in from the edges over a dark red rim, the middle clear. (The Nausea haze was
-    tried first and dropped: the client adds that one to the screen through a fixed tint of
-    0.2 red / 0.4 green / 0.2 blue times the Distortion Effects slider - a pack cannot recolour it.)"""
-    van = T.texture(z, "misc/powder_snow_outline.png")
-    w, h = (van[0], van[1]) if van else (256, 256)
+VEINS_W, VEINS_H = 480, 300      # the bitmap; declared 150 units tall, so 240 wide, x4 as a title = 960x600 GUI px
+VEINS_HEIGHT, VEINS_ASCENT = 150, 65   # a title draws at (-w/2, -10) scaled 4x around the screen centre: ascent = h/2 - 10 centres it
+
+
+def veins(z, files):
+    """Blood veins over the whole screen, drawn by the SERVER, not by a state: ServerMenus' `veins` cue
+    sends a title whose text is one glyph of this pack's own font (`themehorror:veins`, U+E000), so the
+    picture exists exactly while the cue runs and nothing vanilla ever shows it. (The frozen border was
+    tried first and rolled back: a real freeze - powder snow, Toolbox's freeze trick - wore the veins too,
+    and a layer cannot tell the cue from the real thing.) The veins run evenly over the picture rather
+    than ringing its edge: a title scales with the GUI scale, so a small GUI sees the whole glyph and a
+    large one only its middle - even art reads the same either way."""
     import math, random
+    w, h = VEINS_W, VEINS_H
     rnd = random.Random(1408)
-    veins = [bytearray(w) for _ in range(h)]
-    for k in range(72):
+    cover = [bytearray(w) for _ in range(h)]
+    for k in range(110):
+        x, y = rnd.uniform(0, w), rnd.uniform(0, h)
         angle = rnd.uniform(0, 2 * math.pi)
-        x, y = w / 2 + math.cos(angle) * w * 0.72, h / 2 + math.sin(angle) * h * 0.72
-        length = rnd.randint(60, 130)
+        length = rnd.randint(80, 220)
         for step in range(length):
-            angle += rnd.uniform(-0.4, 0.4)
-            dist = max(1.0, math.hypot(x - w / 2, y - h / 2))
-            x -= (x - w / 2) / dist * 1.3 - math.cos(angle) * 0.7   # inwards, with a wobble
-            y -= (y - h / 2) / dist * 1.3 - math.sin(angle) * 0.7
-            thick = max(1, int(3.5 * (1 - step / length)))
+            angle += rnd.uniform(-0.3, 0.3)
+            x += math.cos(angle) * 1.2
+            y += math.sin(angle) * 1.2
+            if not (0 <= x < w and 0 <= y < h):
+                break
+            t = step / length
+            thick = 1 + int(2.2 * math.sin(t * math.pi))       # thin at both ends, fuller in the middle
             for dy in range(-thick, thick + 1):
                 for dx in range(-thick, thick + 1):
                     X, Y = int(x) + dx, int(y) + dy
                     if 0 <= X < w and 0 <= Y < h and dx * dx + dy * dy <= thick * thick:
-                        veins[Y][X] = max(veins[Y][X], int(255 * (1 - step / length) ** 0.7))
+                        edge = 1 - (dx * dx + dy * dy) / (thick * thick + 1)
+                        cover[Y][X] = max(cover[Y][X], int(255 * (0.55 + 0.45 * edge) * math.sin(t * math.pi) ** 0.5))
+            if rnd.random() < 0.02:  # a branch: another, shorter vein from here
+                bx, by, ba = x, y, angle + rnd.choice((-1, 1)) * rnd.uniform(0.6, 1.2)
+                for s2 in range(rnd.randint(20, 60)):
+                    ba += rnd.uniform(-0.3, 0.3)
+                    bx += math.cos(ba) * 1.2
+                    by += math.sin(ba) * 1.2
+                    X, Y = int(bx), int(by)
+                    if 0 <= X < w and 0 <= Y < h:
+                        cover[Y][X] = max(cover[Y][X], 150)
     out = []
     for y in range(h):
         row = bytearray(w * 4)
         for x in range(w):
-            # the rim: nothing inside 0.55 of the half-width, solid by 0.95 (the corners)
-            d = math.hypot(x - w / 2, y - h / 2) / (w / 2)
-            rim = 0.0 if d < 0.55 else min(1.0, (d - 0.55) / 0.4)
-            rim_a = rim * rim * 200
-            vein_a = veins[y][x] * (0.35 + 0.65 * min(1.0, d / 0.9))
-            a = min(255, max(rim_a, vein_a))
-            if a <= 0:
+            c = cover[y][x]
+            if c == 0:
                 continue
-            # veins are brighter blood than the rim they lie on
-            bright = veins[y][x] / 255
-            r = int(70 + 120 * bright)
-            row[x * 4:x * 4 + 4] = bytes((r, int(4 + 6 * bright), int(4 + 4 * bright), int(a)))
+            a = min(200, c * 200 // 255)
+            row[x * 4:x * 4 + 4] = bytes((int(110 + 90 * c / 255), int(6 + 8 * c / 255), int(6 + 6 * c / 255), a))
         out.append(row)
-    files["assets/minecraft/textures/misc/powder_snow_outline.png"] = T.png_encode(w, h, out)
+    files["assets/themehorror/textures/font/veins.png"] = T.png_encode(w, h, out)
+    files["assets/themehorror/font/veins.json"] = (
+        '{"providers": [{"type": "bitmap", "file": "themehorror:font/veins.png", "height": %d, "ascent": %d, "chars": ["\\ue000"]}]}\n'
+        % (VEINS_HEIGHT, VEINS_ASCENT)).encode()
 
 
 def moons(z, files):
@@ -160,7 +174,7 @@ def derive(z):
     files = {}
     hearts(z, files)
     food(z, files)
-    frost(z, files)
+    veins(z, files)
     moons(z, files)
     return files
 
@@ -169,7 +183,7 @@ def build(version=None):
     version = version or VERSION
     z = T.jar()
     files = derive(z)
-    out, from_jar = T.ship(HERE, NAME, version, "blood hearts, rotten food, veins at the edges and a blood moon, on cue", files, pack_icon())
+    out, from_jar = T.ship(HERE, NAME, version, "blood hearts, rotten food, veins and a blood moon, on cue", files, pack_icon())
     return out, len(files), from_jar
 
 

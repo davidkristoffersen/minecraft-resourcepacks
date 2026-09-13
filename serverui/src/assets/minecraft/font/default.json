@@ -108,15 +108,6 @@
     },
     {
       "type": "bitmap",
-      "file": "serverui:font/preview_themehorror_frozen.png",
-      "height": 72,
-      "ascent": 7,
-      "chars": [
-        ""
-      ]
-    },
-    {
-      "type": "bitmap",
       "file": "serverui:font/preview_themehorror_blink.png",
       "height": 72,
       "ascent": 7,
@@ -135,11 +126,11 @@
     },
     {
       "type": "bitmap",
-      "file": "serverui:font/preview_themehorror_frost.png",
+      "file": "serverui:font/preview_themehorror_veins.png",
       "height": 72,
       "ascent": 7,
       "chars": [
-        ""
+        ""
       ]
     },
     {
