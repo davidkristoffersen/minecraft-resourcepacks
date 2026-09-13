@@ -82,24 +82,24 @@ def decoded(files, path):
     return T.png_decode(data) if data else None
 
 
-def hearts_row(z, files, count=3):
-    """count hearts on their containers, from vanilla or from a layer's files."""
+def hearts_row(z, files, count=3, kind="full"):
+    """count hearts on their containers, from vanilla or from a layer's files; kind picks the state sprite."""
     container = decoded(files, "assets/minecraft/textures/gui/sprites/hud/heart/container.png") or T.texture(z, "gui/sprites/hud/heart/container.png")
-    full = decoded(files, "assets/minecraft/textures/gui/sprites/hud/heart/full.png") or T.texture(z, "gui/sprites/hud/heart/full.png")
+    full = decoded(files, f"assets/minecraft/textures/gui/sprites/hud/heart/{kind}.png") or T.texture(z, f"gui/sprites/hud/heart/{kind}.png")
     return container, full, count
 
 
-def draw_hearts(rows, z, files, x, y, scale=2):
-    container, full, count = hearts_row(z, files)
+def draw_hearts(rows, z, files, x, y, scale=2, kind="full"):
+    container, full, count = hearts_row(z, files, kind=kind)
     for i in range(count):
         blit(rows, container, x + i * 8 * scale, y, scale)
         blit(rows, full, x + i * 8 * scale, y, scale)
 
 
-def draw_hud(rows, z, files, side):
+def draw_hud(rows, z, files, side, heart="full"):
     """Three hearts, a slice of the experience bar and the hotbar frame - the HUD a layer retints."""
     x0 = (0 if side == 0 else W // 2 + 1) + 6
-    draw_hearts(rows, z, files, x0, 6)
+    draw_hearts(rows, z, files, x0, 6, kind=heart)
     bar_bg = T.texture(z, "gui/sprites/hud/experience_bar_background.png")
     bar = decoded(files, "assets/minecraft/textures/gui/sprites/hud/experience_bar_progress.png") or T.texture(z, "gui/sprites/hud/experience_bar_progress.png")
     if bar_bg and bar:
@@ -113,12 +113,14 @@ def draw_hud(rows, z, files, side):
         blit(rows, frame, x0 + 65, 11, 2)
 
 
-def preview_theme(z, pack, draw_extra=None):
+def preview_theme(z, pack, draw_extra=None, heart="full"):
+    """heart: which heart sprite the 'with' panel shows - a layer that paints the state sprites
+    (ThemeHorror, absorbing hearts during a cue) previews that state."""
     module = _load(pack)
     files = module.derive(z)
     rows = canvas(HUD_BACK)
     draw_hud(rows, z, {}, 0)
-    draw_hud(rows, z, files, 1)
+    draw_hud(rows, z, files, 1, heart=heart)
     if draw_extra:
         draw_extra(rows, z, {}, 0)
         draw_extra(rows, z, files, 1)
@@ -186,7 +188,7 @@ def previews(sheet_png):
         out["GlassFrame"] = preview_glassframe(z)
         out["ThemeCalm"] = preview_theme(z, "themecalm", sun)
         out["ThemeLab"] = preview_theme(z, "themelab")
-        out["ThemeHorror"] = preview_theme(z, "themehorror", moon)
+        out["ThemeHorror"] = preview_theme(z, "themehorror", moon, heart="absorbing_full")
     out["ServerUI"] = preview_serverui(sheet_png)
     return out
 

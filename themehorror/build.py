@@ -2,8 +2,10 @@
 """
 ThemeHorror - the layer Haunt wears while its director is armed.
 
-Blood moon (every phase), darker hearts that drip, heavier rain, a vignette that
-closes in, and every menu click is a chest lid falling shut. All of it derived from
+Blood moon (every phase), heavier rain, a vignette that closes in, every menu click a
+chest lid falling shut - and blood hearts that drip, painted on the STATE sprites only
+(absorbing, blinking, frozen), so they show during a Haunt moment (the `absorbing` cue
+ServerMenus plays on the victim) and never fight another theme over the everyday hearts. All of it derived from
 the vanilla textures in the installed client jar at build time; the sound is a
 remap of vanilla sound events, no audio shipped. Pushed and popped by the Haunt
 plugin through ServerMenus' `/lookpacks ThemeHorror on|off`.
@@ -17,26 +19,38 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "ThemeHorror"
-VERSION = "1.0.0"      # bumped with ../bump.py, never by hand
+VERSION = "1.1.0"      # bumped with ../bump.py, never by hand
 
 MOONS = ["new_moon", "waxing_crescent", "first_quarter", "waxing_gibbous",
          "full_moon", "waning_gibbous", "third_quarter", "waning_crescent"]
 DRIP = (120, 8, 8, 255)
 
 
+# The hearts this layer paints are the STATE sprites, not the everyday ones: absorbing hearts
+# (ServerMenus' `absorbing` cue, which Haunt plays on a victim for every event), the blinking
+# frames (a fake hurt), the frozen hearts (the freeze events). So blood shows during a Haunt
+# moment and the everyday hearts stay whatever the everyday theme made them - two layers never
+# fight over full.png. The absorbing sprites are gold and the frozen ones ice blue in vanilla,
+# so they are repainted by brightness rather than tinted.
+HEART_STATES = ["absorbing_full", "absorbing_half", "absorbing_full_blinking", "absorbing_half_blinking",
+                "full_blinking", "half_blinking",
+                "frozen_full", "frozen_half", "frozen_full_blinking", "frozen_half_blinking"]
+BLOOD = (0.72, 0.06, 0.06)
+
+
 def hearts(z, files):
-    for kind in ("full", "half"):
-        img = T.texture(z, f"gui/sprites/hud/heart/{kind}.png")
+    for kind in HEART_STATES:
+        try:
+            img = T.texture(z, f"gui/sprites/hud/heart/{kind}.png")
+        except KeyError:
+            continue
         if img is None:
             continue
-        img = T.multiply(img, 0.62, 0.25, 0.25)
+        img = T.recolour(img, *BLOOD)
         # a drop under the heart's point, where the sprite has a spare bottom row
         if T.pixel(img, 4, 7)[3] > 0 and T.pixel(img, 4, 8)[3] == 0:
             T.set_pixel(img, 4, 8, DRIP)
         files[f"assets/minecraft/textures/gui/sprites/hud/heart/{kind}.png"] = T.png_encode(*img)
-    img = T.texture(z, "gui/sprites/hud/heart/container.png")
-    if img is not None:
-        files["assets/minecraft/textures/gui/sprites/hud/heart/container.png"] = T.png_encode(*T.multiply(img, 0.6, 0.3, 0.3))
 
 
 def moons(z, files):

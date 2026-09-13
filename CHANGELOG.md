@@ -2,6 +2,14 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.2.1
+
+ThemeHorror's preview shows the absorbing (event) hearts on the 'with' side.
+
+## ThemeHorror 1.1.0
+
+Blood hearts move to the state sprites (absorbing, blinking, frozen), so they show during a Haunt moment - the absorbing cue ServerMenus plays on the victim - and never fight another theme over the everyday hearts.
+
 ## ServerUI 1.2.0
 
 Pack previews: one 'without | with' picture per look pack (GlassFrame, ServerUI, ThemeCalm, ThemeLab, ThemeHorror) as glyphs at U+E100-U+E104, drawn from the vanilla textures and the packs' own build code; shown on the Look Packs pack page for clients with this pack loaded.
