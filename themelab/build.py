@@ -22,9 +22,9 @@ TEAL = (0.18, 0.86, 0.90)
 CYAN = (0.30, 0.92, 1.0)
 
 
-def build(version=None):
-    version = version or VERSION
-    z = T.jar()
+def derive(z):
+    """Every file this layer ships, from the open client jar (None = no textures, sound only).
+    Shared with ServerUI, which draws the before/after preview from the same bytes."""
     files = {}
     for kind in ("full", "half"):
         img = T.texture(z, f"gui/sprites/hud/heart/{kind}.png")
@@ -38,6 +38,13 @@ def build(version=None):
         # only the light frame pixels take the colour; the dark shadow pixels stay
         files["assets/minecraft/textures/gui/sprites/hud/hotbar_selection.png"] = T.png_encode(*T.recolour(img, *CYAN))
     files["assets/minecraft/sounds.json"] = T.sounds({"ui.button.click": ("block.note_block.bit", 0.45, 1.3)}).encode()
+    return files
+
+
+def build(version=None):
+    version = version or VERSION
+    z = T.jar()
+    files = derive(z)
 
     def px(x, y):
         # a flask: neck, then a round body with a bubble

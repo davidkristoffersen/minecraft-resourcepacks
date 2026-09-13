@@ -78,15 +78,22 @@ def pack_icon():
     return T.icon((16, 8, 12, 255), px)
 
 
-def build(version=None):
-    version = version or VERSION
-    z = T.jar()
+def derive(z):
+    """Every file this layer ships, from the open client jar (None = no textures, sound only).
+    Shared with ServerUI, which draws the before/after preview from the same bytes."""
     files = {}
     hearts(z, files)
     moons(z, files)
     weather(z, files)
     vignette(z, files)
     files["assets/minecraft/sounds.json"] = T.sounds({"ui.button.click": ("block.chest.close", 0.55, 0.9)}).encode()
+    return files
+
+
+def build(version=None):
+    version = version or VERSION
+    z = T.jar()
+    files = derive(z)
     out, from_jar = T.ship(HERE, NAME, version, "blood moon, dripping hearts, closing dark", files, pack_icon())
     return out, len(files), from_jar
 

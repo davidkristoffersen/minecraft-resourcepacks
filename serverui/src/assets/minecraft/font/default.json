@@ -44,6 +44,51 @@
       ]
     },
     {
+      "type": "bitmap",
+      "file": "serverui:font/preview_glassframe.png",
+      "height": 72,
+      "ascent": 7,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "serverui:font/preview_serverui.png",
+      "height": 72,
+      "ascent": 7,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "serverui:font/preview_themecalm.png",
+      "height": 72,
+      "ascent": 7,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "serverui:font/preview_themelab.png",
+      "height": 72,
+      "ascent": 7,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "serverui:font/preview_themehorror.png",
+      "height": 72,
+      "ascent": 7,
+      "chars": [
+        ""
+      ]
+    },
+    {
       "type": "reference",
       "id": "minecraft:include/space"
     },

@@ -22,9 +22,9 @@ VERSION = "1.0.0"      # bumped with ../bump.py, never by hand
 GOLD = (1.0, 0.84, 0.45)
 
 
-def build(version=None):
-    version = version or VERSION
-    z = T.jar()
+def derive(z):
+    """Every file this layer ships, from the open client jar (None = no textures, sound only).
+    Shared with ServerUI, which draws the before/after preview from the same bytes."""
     files = {}
     img = T.texture(z, "gui/sprites/hud/hotbar_selection.png")
     if img is not None:
@@ -33,6 +33,13 @@ def build(version=None):
     if img is not None:
         files["assets/minecraft/textures/environment/celestial/sun.png"] = T.png_encode(*T.multiply(img, 1.0, 0.93, 0.78))
     files["assets/minecraft/sounds.json"] = T.sounds({"ui.button.click": ("block.amethyst_block.chime", 0.35, 1.0)}).encode()
+    return files
+
+
+def build(version=None):
+    version = version or VERSION
+    z = T.jar()
+    files = derive(z)
 
     def px(x, y):
         d = ((x - 32) ** 2 + (y - 30) ** 2) ** 0.5

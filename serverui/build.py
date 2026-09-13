@@ -46,6 +46,15 @@ loaded (ServerMenus checks the Look Packs status per player and prints
 ▰▰▰▱▱ otherwise). One glyph is one bar: TPS on the admin main, a Haunt
 category's weight, a player's health, the tier ladder.
 
+Previews
+--------
+`previews.py` draws one "without | with" picture per look pack (GlassFrame, the
+three theme layers, this pack's own icons) and registers each as a glyph at
+U+E100.. - a dialog body can show a picture only as text, and a font glyph is
+the one text that is a picture. Gated the same way as the bars: the server emits
+the glyph only for a client that reported this pack loaded. `preview-packs.png`
+next to this script shows them all.
+
 Building
 --------
 `python3 build.py` reads the vanilla `font/default.json` from the installed
@@ -58,13 +67,15 @@ ones - nothing of Mojang's is vendored), writes `src/`, `ServerUI-<v>.zip`,
 import binascii
 import json
 import pathlib
+import sys
+sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import shutil
 import struct
 import zipfile
 import zlib
 
 NAME = "ServerUI"
-VERSION = "1.1.0"         # bumped with ../bump.py, never by hand
+VERSION = "1.2.0"         # bumped with ../bump.py, never by hand
 HERE = pathlib.Path(__file__).parent
 SRC = HERE / "src"
 DIST = HERE / "dist"
@@ -827,6 +838,15 @@ def build(version=None):
     (tex_dir / "icons.png").write_bytes(png)
     bars_png, bar_chars = bars()
     (tex_dir / "bars.png").write_bytes(bars_png)
+    import previews as pv
+    pictures = pv.previews(png)
+    preview_providers = []
+    for name, cp in pv.PREVIEWS:
+        if name not in pictures:
+            continue
+        (tex_dir / f"preview_{name.lower()}.png").write_bytes(_png_encode(*pictures[name]))
+        preview_providers.append({"type": "bitmap", "file": f"serverui:font/preview_{name.lower()}.png",
+                                  "height": pv.H, "ascent": pv.ASCENT, "chars": [chr(cp)]})
 
     providers, fmt, from_jar = vanilla_default_font()
     ours = [
@@ -834,7 +854,7 @@ def build(version=None):
          "height": CELL, "ascent": 7, "chars": char_rows},
         {"type": "bitmap", "file": "serverui:font/bars.png",
          "height": CELL, "ascent": 7, "chars": bar_chars},
-    ]
+    ] + preview_providers
     (font_dir / "default.json").write_text(
         json.dumps({"providers": ours + providers}, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8")
@@ -853,6 +873,7 @@ def build(version=None):
 
     (HERE / "preview.png").write_bytes(preview(table))
     (HERE / "preview-bars.png").write_bytes(preview_bars())
+    (HERE / "preview-packs.png").write_bytes(pv.contact_sheet(pictures))
     # the shipped zip lands next to this script (that is the URL the server hands out),
     # older versions go
     for old in HERE.glob(f"{NAME}-*.zip"):
@@ -865,7 +886,7 @@ def build(version=None):
                 info = zipfile.ZipInfo(path.relative_to(SRC).as_posix(), (2026, 1, 1, 0, 0, 0))
                 info.compress_type = zipfile.ZIP_DEFLATED
                 z.writestr(info, path.read_bytes())
-    return out, len(table), from_jar
+    return out, len(table), from_jar and len(pictures) == len(pv.PREVIEWS)
 
 
 def main():

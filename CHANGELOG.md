@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.2.0
+
+Pack previews: one 'without | with' picture per look pack (GlassFrame, ServerUI, ThemeCalm, ThemeLab, ThemeHorror) as glyphs at U+E100-U+E104, drawn from the vanilla textures and the packs' own build code; shown on the Look Packs pack page for clients with this pack loaded.
+
 ## ThemeHorror 1.0.0
 
 First release: blood moon in every phase, darker dripping hearts, heavier rain, a closing vignette, a chest lid for every menu click. Worn by the Haunt plugin while its director is armed.
