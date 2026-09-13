@@ -99,6 +99,7 @@ def main():
 
     main_panes()
     main_floor_corner()
+    main_builds()
     main_holes()
     main_exhaustive()
 
@@ -557,6 +558,78 @@ def block_boxes(world, pos, t=1 / 16):
                     continue
                 out.append(box([face, first, second]))
     return resolve(out)
+
+
+# ==================== corners across a whole build ====================
+
+def world_bars(world):
+    """Every bar of every glass block in a world, in world coordinates."""
+    out = []
+    for pos, kind in world.items():
+        if kind != "glass":
+            continue
+        for b in resolve(block_boxes(world, pos)):
+            out.append((pos[0] + b[0], pos[1] + b[1], pos[2] + b[2], b[3], b[4], b[5]))
+    return out
+
+
+def open_corners(bars, t=1 / 16):
+    """Mirrors /glassrim gaps: the cubes two lines of different axes both run into and
+    do not fill. Sampled through the cube's VOLUME - a corner filled from one side only
+    has a covered centre and an open sliver, and a centre test calls that filled."""
+    aims = {}
+    for b in bars:
+        axis = run_axis(b)
+        for end in (0, 1):
+            lo = [b[0], b[1], b[2]]
+            lo[axis] = b[axis] - t if end == 0 else b[axis] + b[axis + 3]
+            key = tuple(round(v, 4) for v in lo)
+            aims.setdefault(key, set()).add(axis)
+    def filled(point):
+        return any(all(b[i] - 1e-6 <= point[i] <= b[i] + b[i + 3] + 1e-6 for i in range(3))
+                   for b in bars)
+
+    holes = []
+    for key, axes in aims.items():
+        if len(axes) < 2:                 # a line ending in open air is just the end of a rim
+            continue
+        empty = 0
+        for dx in (0.25, 0.75):
+            for dy in (0.25, 0.75):
+                for dz in (0.25, 0.75):
+                    if not filled((key[0] + dx * t, key[1] + dy * t, key[2] + dz * t)):
+                        empty += 1
+        if empty:
+            holes.append((key, empty))
+    return sorted(holes)
+
+
+def main_builds():
+    print("\nwhole builds: every corner two lines meet at is filled right through")
+    ground = {(x, -1, z): "solid" for x in range(-2, 4) for z in range(-2, 4)}
+
+    sheet = dict(ground)
+    sheet.update({(x, 0, z): "glass" for x in range(3) for z in range(3)})
+    del sheet[(1, 0, 1)]                                   # a floor with a hole in it
+    check("a glass floor on stone with a hole in it", not open_corners(world_bars(sheet)),
+          f"{open_corners(world_bars(sheet))}")
+
+    ell = dict(ground)
+    ell.update({(0, 0, 0): "glass", (1, 0, 0): "glass", (1, 0, 1): "glass"})
+    check("an L of glass on stone", not open_corners(world_bars(ell)),
+          f"{open_corners(world_bars(ell))}")
+
+    # two upright layers: back PP / AP, front PA / AA
+    stack = dict(ground)
+    stack.update({(0, 1, 1): "glass", (1, 1, 1): "glass", (1, 0, 1): "glass", (0, 1, 0): "glass"})
+    check("two courses, three blocks behind and one in front", not open_corners(world_bars(stack)),
+          f"{open_corners(world_bars(stack))}")
+
+    cube = dict(ground)
+    cube.update({(x, y, z): "glass" for x in range(2) for y in range(2) for z in range(2)})
+    del cube[(1, 1, 1)]                                    # a 2x2x2 with a bite out of it
+    check("a 2x2x2 block with one corner missing", not open_corners(world_bars(cube)),
+          f"{open_corners(world_bars(cube))}")
 
 
 def main_floor_corner():
