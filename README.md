@@ -8,10 +8,10 @@ pack.
 | Pack | What | Download |
 |---|---|---|
 | [GlassFrame](glassframe/) | Glass with no borders at all, blocks and panes, so a window or floor reads as one clean sheet. Pairs with a plugin that draws the outline back only where the glass actually stops. | [`GlassFrame-2.8.3-borderless.zip`](glassframe/GlassFrame-2.8.3-borderless.zip) |
-| [ServerUI](serverui/) | Pixel icons at the emoji code points the server's dialog menus use, drawn into the default font. Without the pack the menus show the same symbols in Unifont. | [`ServerUI-1.3.0.zip`](serverui/ServerUI-1.3.0.zip) |
+| [ServerUI](serverui/) | Pixel icons at the emoji code points the server's dialog menus use, drawn into the default font. Without the pack the menus show the same symbols in Unifont. | [`ServerUI-1.4.0.zip`](serverui/ServerUI-1.4.0.zip) |
 | [ThemeCalm](themecalm/) | Theme layer for the main server: warm gold hotbar frame, warmer sun, a soft chime on every menu click. | [`ThemeCalm-1.0.0.zip`](themecalm/ThemeCalm-1.0.0.zip) |
 | [ThemeLab](themelab/) | Theme layer for the test server: teal hearts, cyan experience bar and hotbar frame, a digital blip on every menu click. | [`ThemeLab-1.0.0.zip`](themelab/ThemeLab-1.0.0.zip) |
-| [ThemeHorror](themehorror/) | Theme layer the Haunt plugin wears while armed: blood moon, dripping hearts, heavier rain, closing vignette, a chest lid for every click. | [`ThemeHorror-2.0.0.zip`](themehorror/ThemeHorror-2.0.0.zip) |
+| [ThemeHorror](themehorror/) | The Haunt plugin's companion layer, loaded all the time and painting only player states: dripping blood hearts, raw drumsticks and a veined overlay during its events, a blood moon while the director is armed. | [`ThemeHorror-2.1.0.zip`](themehorror/ThemeHorror-2.1.0.zip) |
 
 The three theme layers share `themelib.py`: a pack that ships only the files it
 changes, every texture derived from the installed client jar at build time, the

@@ -2,6 +2,14 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.4.0
+
+preview panels for ThemeHorror's hunger and nausea cues
+
+## ThemeHorror 2.1.0
+
+raw drumsticks for the hunger cue, a veined overlay for the nausea cue
+
 ## ServerUI 1.3.0
 
 Several preview panels per pack: ThemeHorror shows the blood moon and each cue heart (absorbing, frozen, blink) on its own panel.

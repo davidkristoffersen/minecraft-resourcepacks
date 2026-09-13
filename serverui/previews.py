@@ -28,7 +28,8 @@ PREVIEWS = {
     "ServerUI": [("icons", 0xE101)],
     "ThemeCalm": [("hud", 0xE102)],
     "ThemeLab": [("hud", 0xE103)],
-    "ThemeHorror": [("moon", 0xE104), ("absorbing", 0xE110), ("frozen", 0xE111), ("blink", 0xE112)],
+    "ThemeHorror": [("moon", 0xE104), ("absorbing", 0xE110), ("frozen", 0xE111), ("blink", 0xE112),
+                    ("hunger", 0xE113), ("nausea", 0xE114)],
 }
 
 HUD_BACK = (36, 40, 50, 255)
@@ -161,6 +162,39 @@ def panel_hearts(z, files, kind):
     return W, H, rows
 
 
+def panel_food(z, files):
+    """Five drumsticks of the Hunger effect on their outlines, vanilla | layer, at 3x."""
+    rows = canvas(HUD_BACK)
+    for side, f in ((0, {}), (1, files)):
+        empty = decoded(f, "assets/minecraft/textures/gui/sprites/hud/food_empty_hunger.png") or T.texture(z, "gui/sprites/hud/food_empty_hunger.png")
+        full = decoded(f, "assets/minecraft/textures/gui/sprites/hud/food_full_hunger.png") or T.texture(z, "gui/sprites/hud/food_full_hunger.png")
+        x0 = (0 if side == 0 else W // 2 + 1) + 6
+        for i in range(5):
+            if empty:
+                blit(rows, empty, x0 + i * 8 * 3, 22, 3)
+            if full:
+                blit(rows, full, x0 + i * 8 * 3, 22, 3)
+    divider(rows)
+    return W, H, rows
+
+
+def panel_nausea(z, files):
+    """The overlay texture itself, shrunk to fit, vanilla | layer - the client tints and fades it
+    over the whole screen, so this shows the shape and the colour, not the strength."""
+    rows = canvas((22, 24, 30, 255))
+    van = T.texture(z, "misc/nausea.png")
+    ours = decoded(files, "assets/minecraft/textures/misc/nausea.png") or van
+    for side, img in ((0, van), (1, ours)):
+        if not img:
+            continue
+        w, h, src = img
+        step = max(1, h // (H - 8))                 # 256 -> 64
+        small = (w // step, h // step, [bytearray(b"".join(src[y * step][x * step * 4:x * step * 4 + 4] for x in range(w // step))) for y in range(h // step)])
+        blit(rows, small, (0 if side == 0 else W // 2 + 1) + (W // 2 - small[0]) // 2, (H - small[1]) // 2, 1)
+    divider(rows)
+    return W, H, rows
+
+
 def panel_moon(z, files):
     """The moon alone, vanilla full moon | the layer's blood moon, at 2x over the night sky colour."""
     rows = canvas((10, 12, 22, 255))
@@ -226,6 +260,8 @@ def previews(sheet_png):
         out[("ThemeHorror", "absorbing")] = panel_hearts(z, horror, "absorbing_full")
         out[("ThemeHorror", "frozen")] = panel_hearts(z, horror, "frozen_full")
         out[("ThemeHorror", "blink")] = panel_hearts(z, horror, "full_blinking")
+        out[("ThemeHorror", "hunger")] = panel_food(z, horror)
+        out[("ThemeHorror", "nausea")] = panel_nausea(z, horror)
     out[("ServerUI", "icons")] = preview_serverui(sheet_png)
     return out
 
