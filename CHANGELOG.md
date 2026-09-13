@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.3.0
+
+Several preview panels per pack: ThemeHorror shows the blood moon and each cue heart (absorbing, frozen, blink) on its own panel.
+
 ## ServerUI 1.2.3
 
 Horror preview shows the repainted new moon.

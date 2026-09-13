@@ -21,8 +21,15 @@ import themelib as T  # noqa: E402
 
 W, H = 256, 72                 # the picture; a dialog body is 300 wide
 ASCENT = 7                     # hangs down from the first line: the menu pads 8 blank lines under it
-PREVIEWS = [("GlassFrame", 0xE100), ("ServerUI", 0xE101), ("ThemeCalm", 0xE102),
-            ("ThemeLab", 0xE103), ("ThemeHorror", 0xE104)]
+# pack -> its panels: (key, code point). One panel per distinct look a pack has - a page may show
+# several. LookPacksMenu.PREVIEW_GLYPHS carries the same code points with the captions.
+PREVIEWS = {
+    "GlassFrame": [("glass", 0xE100)],
+    "ServerUI": [("icons", 0xE101)],
+    "ThemeCalm": [("hud", 0xE102)],
+    "ThemeLab": [("hud", 0xE103)],
+    "ThemeHorror": [("moon", 0xE104), ("absorbing", 0xE110), ("frozen", 0xE111), ("blink", 0xE112)],
+}
 
 HUD_BACK = (36, 40, 50, 255)
 SKY_BACK = (118, 168, 226, 255)
@@ -141,6 +148,31 @@ def moon(rows, z, files, side):
         blit(rows, img, (0 if side == 0 else W // 2 + 1) + 14, 40, 1)
 
 
+def panel_hearts(z, files, kind):
+    """Five hearts of one state sprite, vanilla | layer, at 3x - one look, big enough to read the drips."""
+    rows = canvas(HUD_BACK)
+    for side, f in ((0, {}), (1, files)):
+        container, full, _ = hearts_row(z, f, count=5, kind=kind)
+        x0 = (0 if side == 0 else W // 2 + 1) + 6
+        for i in range(5):
+            blit(rows, container, x0 + i * 8 * 3, 22, 3)
+            blit(rows, full, x0 + i * 8 * 3, 22, 3)
+    divider(rows)
+    return W, H, rows
+
+
+def panel_moon(z, files):
+    """The moon alone, vanilla full moon | the layer's blood moon, at 2x over the night sky colour."""
+    rows = canvas((10, 12, 22, 255))
+    van = T.texture(z, "environment/celestial/moon/full_moon.png")
+    ours = decoded(files, "assets/minecraft/textures/environment/celestial/moon/new_moon.png") or van
+    for side, img in ((0, van), (1, ours)):
+        if img:
+            blit(rows, img, (0 if side == 0 else W // 2 + 1) + (W // 2 - 64) // 2, 4, 2)
+    divider(rows)
+    return W, H, rows
+
+
 def preview_glassframe(z):
     """Vanilla glass tiles against sky: a grid of borders on the left, one clear sheet on the right."""
     gf = _load("glassframe")
@@ -182,21 +214,30 @@ def preview_serverui(sheet_png):
 
 
 def previews(sheet_png):
-    """{name: (w, h, rows)} for every entry in PREVIEWS that can be drawn."""
+    """{(name, key): (w, h, rows)} for every panel in PREVIEWS that can be drawn."""
     z = T.jar()
     out = {}
     if z is not None:
-        out["GlassFrame"] = preview_glassframe(z)
-        out["ThemeCalm"] = preview_theme(z, "themecalm", sun)
-        out["ThemeLab"] = preview_theme(z, "themelab")
-        out["ThemeHorror"] = preview_theme(z, "themehorror", moon, heart="absorbing_full")
-    out["ServerUI"] = preview_serverui(sheet_png)
+        out[("GlassFrame", "glass")] = preview_glassframe(z)
+        out[("ThemeCalm", "hud")] = preview_theme(z, "themecalm", sun)
+        out[("ThemeLab", "hud")] = preview_theme(z, "themelab")
+        horror = _load("themehorror").derive(z)
+        out[("ThemeHorror", "moon")] = panel_moon(z, horror)
+        out[("ThemeHorror", "absorbing")] = panel_hearts(z, horror, "absorbing_full")
+        out[("ThemeHorror", "frozen")] = panel_hearts(z, horror, "frozen_full")
+        out[("ThemeHorror", "blink")] = panel_hearts(z, horror, "full_blinking")
+    out[("ServerUI", "icons")] = preview_serverui(sheet_png)
     return out
 
 
+def panels():
+    """Every (name, key, code point) in PREVIEWS order."""
+    return [(name, key, cp) for name, items in PREVIEWS.items() for key, cp in items]
+
+
 def contact_sheet(images, scale=2):
-    """Every preview stacked, for looking at them - written next to build.py as preview-packs.png."""
-    names = [n for n, _ in PREVIEWS if n in images]
+    """Every panel stacked, for looking at them - written next to build.py as preview-packs.png."""
+    names = [(n, k) for n, k, _ in panels() if (n, k) in images]
     pad = 4
     w = (W + 2 * pad) * scale
     h = (len(names) * (H + pad) + pad) * scale

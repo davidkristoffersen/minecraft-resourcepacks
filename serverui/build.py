@@ -75,7 +75,7 @@ import zipfile
 import zlib
 
 NAME = "ServerUI"
-VERSION = "1.2.3"         # bumped with ../bump.py, never by hand
+VERSION = "1.3.0"         # bumped with ../bump.py, never by hand
 HERE = pathlib.Path(__file__).parent
 SRC = HERE / "src"
 DIST = HERE / "dist"
@@ -841,11 +841,12 @@ def build(version=None):
     import previews as pv
     pictures = pv.previews(png)
     preview_providers = []
-    for name, cp in pv.PREVIEWS:
-        if name not in pictures:
+    for name, key, cp in pv.panels():
+        if (name, key) not in pictures:
             continue
-        (tex_dir / f"preview_{name.lower()}.png").write_bytes(_png_encode(*pictures[name]))
-        preview_providers.append({"type": "bitmap", "file": f"serverui:font/preview_{name.lower()}.png",
+        file = f"preview_{name.lower()}_{key}.png"
+        (tex_dir / file).write_bytes(_png_encode(*pictures[(name, key)]))
+        preview_providers.append({"type": "bitmap", "file": f"serverui:font/{file}",
                                   "height": pv.H, "ascent": pv.ASCENT, "chars": [chr(cp)]})
 
     providers, fmt, from_jar = vanilla_default_font()
@@ -886,7 +887,7 @@ def build(version=None):
                 info = zipfile.ZipInfo(path.relative_to(SRC).as_posix(), (2026, 1, 1, 0, 0, 0))
                 info.compress_type = zipfile.ZIP_DEFLATED
                 z.writestr(info, path.read_bytes())
-    return out, len(table), from_jar and len(pictures) == len(pv.PREVIEWS)
+    return out, len(table), from_jar and len(pictures) == len(pv.panels())
 
 
 def main():

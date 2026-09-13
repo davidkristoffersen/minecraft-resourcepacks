@@ -45,7 +45,7 @@
     },
     {
       "type": "bitmap",
-      "file": "serverui:font/preview_glassframe.png",
+      "file": "serverui:font/preview_glassframe_glass.png",
       "height": 72,
       "ascent": 7,
       "chars": [
@@ -54,7 +54,7 @@
     },
     {
       "type": "bitmap",
-      "file": "serverui:font/preview_serverui.png",
+      "file": "serverui:font/preview_serverui_icons.png",
       "height": 72,
       "ascent": 7,
       "chars": [
@@ -63,7 +63,7 @@
     },
     {
       "type": "bitmap",
-      "file": "serverui:font/preview_themecalm.png",
+      "file": "serverui:font/preview_themecalm_hud.png",
       "height": 72,
       "ascent": 7,
       "chars": [
@@ -72,7 +72,7 @@
     },
     {
       "type": "bitmap",
-      "file": "serverui:font/preview_themelab.png",
+      "file": "serverui:font/preview_themelab_hud.png",
       "height": 72,
       "ascent": 7,
       "chars": [
@@ -81,11 +81,38 @@
     },
     {
       "type": "bitmap",
-      "file": "serverui:font/preview_themehorror.png",
+      "file": "serverui:font/preview_themehorror_moon.png",
       "height": 72,
       "ascent": 7,
       "chars": [
         ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "serverui:font/preview_themehorror_absorbing.png",
+      "height": 72,
+      "ascent": 7,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "serverui:font/preview_themehorror_frozen.png",
+      "height": 72,
+      "ascent": 7,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "serverui:font/preview_themehorror_blink.png",
+      "height": 72,
+      "ascent": 7,
+      "chars": [
+        ""
       ]
     },
     {
