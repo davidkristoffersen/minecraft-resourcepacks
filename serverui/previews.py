@@ -26,7 +26,7 @@ ASCENT = 7                     # hangs down from the first line: the menu pads 8
 PREVIEWS = {
     "GlassFrame": [("glass", 0xE100)],
     "Camera": [("items", 0xE120)],
-    "ServerUI": [("icons", 0xE101), ("grids", 0xE117)],
+    "ServerUI": [("icons", 0xE101), ("grids", 0xE117), ("banner", 0xE118)],
     "ThemeCalm": [("hud", 0xE102)],
     "ThemeLab": [("hud", 0xE103)],
     # E111 (frozen hearts) and E115 (frost border) are retired: the frozen state is vanilla's again.
@@ -299,6 +299,23 @@ def panel_grids(z):
     return W, H, rows
 
 
+def panel_banner(z):
+    """The hub header banner: nothing on the left (a hub without the pack shows its title and rows
+    only), on the right two banners as two hubs send them - 🧩 Plugins in aqua, ☠ Difficulty in red -
+    at 1x, 300 px squeezed to the panel's half by cropping the outer ends of the wings."""
+    ui = _load("serverui")
+    rows = canvas(HUD_BACK)
+    table = ui.glyphs()
+    half = W // 2 - 6
+    for n, (icon, tint) in enumerate((("🧩", (85, 255, 255)), ("☠", (255, 85, 85)))):
+        w, h, img = ui.banner_composite(table[icon], tint)
+        cut = (w - half) // 2
+        piece = crop((w, h, img), cut, 0, half, h)
+        blit(rows, piece, W // 2 + 1 + 3, 10 + n * 32, 1)
+    divider(rows)
+    return W, H, rows
+
+
 def previews(sheet_png):
     """{(name, key): (w, h, rows)} for every panel in PREVIEWS that can be drawn."""
     z = T.jar()
@@ -315,6 +332,7 @@ def previews(sheet_png):
         out[("ThemeHorror", "hunger")] = panel_food(z, horror)
         out[("ThemeHorror", "veins")] = panel_veins(z, horror)
         out[("ServerUI", "grids")] = panel_grids(z)
+        out[("ServerUI", "banner")] = panel_banner(z)
     out[("ServerUI", "icons")] = preview_serverui(sheet_png)
     return out
 

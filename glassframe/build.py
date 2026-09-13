@@ -78,6 +78,7 @@ itself, reissued with its opaque flecks at half alpha - see "the specks" below.
 
 import json
 import pathlib
+import sys
 import shutil
 import zipfile
 
@@ -261,8 +262,9 @@ PANE_SPECK_ALPHA = 128   # 50% - panes, which need more to read the same
 # it; stained panes are already 40-61% in their own textures.
 PANE_TEXTURE = "glassframe_pane"
 
-CLIENT_JAR = pathlib.Path.home() / (
-    "Library/Application Support/minecraft/versions/26.2/26.2.jar")
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+import themelib as _themelib  # noqa: E402  - the client jar of the version the servers run (MC_VERSION overrides)
+CLIENT_JAR = _themelib.CLIENT_JAR
 
 
 def _png_decode(data):

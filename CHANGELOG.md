@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.9.0
+
+Hub header banners: fading wings (U+E220/E221) and the icons at 3x in serverui:gui, positive spaces U+F809..F810, preview panel E118
+
 ## ServerUI 1.8.0
 
 chest-grid frames in their own font serverui:gui (a panel and an accent per row count, negative spaces)

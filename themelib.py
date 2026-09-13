@@ -20,7 +20,27 @@ import struct
 import zipfile
 import zlib
 
-CLIENT_JAR = pathlib.Path.home() / "Library/Application Support/minecraft/versions/26.2/26.2.jar"
+MC_VERSIONS = pathlib.Path.home() / "Library/Application Support/minecraft/versions"
+
+
+def server_version(repo=pathlib.Path(__file__).resolve().parent.parent):
+    """The Minecraft version the servers run: MC_VERSION in the environment, else the newest
+    versions/<v>/ the main server has extracted (repo root), else the newest installed client
+    release. Textures must come from the client of the version the servers run, not from
+    whatever snapshot happens to be installed - a 26.3 client jar would put 26.3 sprites and a
+    26.3 pack format into packs served to 26.2."""
+    import os
+    if os.environ.get("MC_VERSION"):
+        return os.environ["MC_VERSION"]
+    found = [p.name for p in (repo / "versions").iterdir() if p.is_dir()] if (repo / "versions").exists() else []
+    if found:
+        return sorted(found, key=lambda v: [int(x) if x.isdigit() else 0 for x in v.split(".")])[-1]
+    releases = [p.name for p in MC_VERSIONS.iterdir() if p.is_dir() and (p / f"{p.name}.jar").exists()
+                and all(x.isdigit() for x in p.name.split("."))] if MC_VERSIONS.exists() else []
+    return sorted(releases, key=lambda v: [int(x) for x in v.split(".")])[-1] if releases else "26.2"
+
+
+CLIENT_JAR = MC_VERSIONS / server_version() / f"{server_version()}.jar"
 PACK_FORMAT_FALLBACK = 88
 
 

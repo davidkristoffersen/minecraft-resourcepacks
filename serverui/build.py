@@ -75,12 +75,13 @@ import zipfile
 import zlib
 
 NAME = "ServerUI"
-VERSION = "1.8.0"         # bumped with ../bump.py, never by hand
+VERSION = "1.9.0"         # bumped with ../bump.py, never by hand
 HERE = pathlib.Path(__file__).parent
 SRC = HERE / "src"
 DIST = HERE / "dist"
-CLIENT_JAR = pathlib.Path.home() / (
-    "Library/Application Support/minecraft/versions/26.2/26.2.jar")
+sys.path.insert(0, str(HERE.parent))
+import themelib as _themelib  # noqa: E402  - the client jar of the version the servers run (MC_VERSION overrides)
+CLIENT_JAR = _themelib.CLIENT_JAR
 PACK_FORMAT_FALLBACK = 88
 
 CELL = 8
@@ -823,6 +824,15 @@ def pack_icon(table):
 GUI_W = 176
 GUI_BASE, GUI_ACCENT, GUI_SPACE = 0xE200, 0xE210, 0xF800
 GUI_ASCENT = 13
+# The hub header banner (1.9.0): two wings that fade outward from the middle, U+E220 (left) and
+# U+E221 (right), and the icon sheet once more at 3x under the SAME characters - so the server
+# writes the hub's own icon between the wings with no code-point table to keep in step
+# ("🧩" in font serverui:gui is the big icon). Sent in the hub's colour; a body row 300 wide.
+BANNER_W, BANNER_H = 132, 24
+BANNER_LEFT, BANNER_RIGHT = 0xE220, 0xE221
+BANNER_ASCENT = 7            # hangs from its line like the previews: the menu pads two blank lines under it
+BIG_SCALE = 3
+BIG_ASCENT = 6                # the 3x art (rows 0-20 of 24) centred on the wings' rule, which sits 5 px under the baseline
 
 
 def gui_height(rows):
@@ -877,15 +887,84 @@ def gui_pictures(rows):
     return (w, h, neutral), (w, h, accent)
 
 
-def gui_font(tex_dir, font_dir=None):
-    """Write the frames and serverui:gui; returns the provider list (for the record)."""
-    providers = [{"type": "space", "advances": {chr(GUI_SPACE + k): -(1 << (k - 1)) for k in range(1, 9)}}]
+def banner_wings():
+    """(left, right) RGBA wings, each (w, h, rows): a double rule that is bright at the icon and fades
+    outward, white so the hub colour tints it. The bright end is the inner one, so the fade never
+    reaches a glyph's edge on the side the client measures the advance from (a trailing transparent
+    column would shorten the left wing)."""
+    w, h = BANNER_W, BANNER_H
+    left = [bytearray(w * 4) for _ in range(h)]
+    mid = h // 2
+    for x in range(w):
+        t = x / (w - 1)                       # 0 at the outer end, 1 at the icon
+        a = int(255 * t ** 1.6)
+        if a == 0:
+            continue
+        left[mid - 1][x * 4:x * 4 + 4] = bytes((255, 255, 255, a))
+        left[mid][x * 4:x * 4 + 4] = bytes((255, 255, 255, a))
+        soft = int(a * 0.45)
+        if soft:
+            left[mid + 2][x * 4:x * 4 + 4] = bytes((255, 255, 255, soft))
+    # a small diamond where the rule meets the icon
+    for dy, span in ((-3, 1), (-2, 2), (-1, 3), (0, 3), (1, 3), (2, 2), (3, 1)):
+        for dx in range(-span + 1, span):
+            x = w - 4 + dx
+            if 0 <= x < w:
+                left[mid + dy][x * 4:x * 4 + 4] = bytes((255, 255, 255, 255))
+    right = [bytearray(b"".join(bytes(r[i * 4:i * 4 + 4]) for i in reversed(range(w)))) for r in left]
+    return (w, h, left), (w, h, right)
+
+
+def banner_composite(icon_rows, tint):
+    """The banner as the client shows it, for the preview: left wing, the icon at 3x, right wing,
+    everything tinted (r, g, b) - 300 px wide like the body row it sits in."""
+    (w, h, left), (_, _, right) = banner_wings()
+    icon_w = max(len(r) for r in icon_rows) * BIG_SCALE
+    gap = 3
+    total = w + gap + icon_w + gap + w
+    out = [bytearray(total * 4) for _ in range(h)]
+    def put(img_rows, ox):
+        for y in range(h):
+            for x in range(len(img_rows[y]) // 4):
+                a = img_rows[y][x * 4 + 3]
+                if a:
+                    out[y][(ox + x) * 4:(ox + x) * 4 + 4] = bytes((*tint, a))
+    put(left, 0)
+    put(right, w + gap + icon_w + gap)
+    oy = (h - CELL * BIG_SCALE) // 2 + 1
+    for y, art in enumerate(icon_rows):
+        for x, px in enumerate(art):
+            if px == ".":
+                continue
+            v = SHADES[px] / 255
+            for dy in range(BIG_SCALE):
+                for dx in range(BIG_SCALE):
+                    X = w + gap + x * BIG_SCALE + dx
+                    out[oy + y * BIG_SCALE + dy][X * 4:X * 4 + 4] = bytes((int(tint[0] * v), int(tint[1] * v), int(tint[2] * v), 255))
+    return total, h, out
+
+
+def gui_font(tex_dir, font_dir=None, icon_chars=None):
+    """Write the frames, the banner wings and serverui:gui; returns the provider list (for the record).
+    `icon_chars` = the icon sheet's char rows: the same sheet joins this font at 3x for the banners."""
+    # negative advances -1, -2, -4 … -128 at U+F801..F808 and positive +1 … +128 at U+F809..F810
+    spaces = {chr(GUI_SPACE + k): -(1 << (k - 1)) for k in range(1, 9)}
+    spaces.update({chr(GUI_SPACE + 8 + k): (1 << (k - 1)) for k in range(1, 9)})
+    providers = [{"type": "space", "advances": spaces}]
     for rows in range(1, 7):
         neutral, accent = gui_pictures(rows)
         for kind, img, cp in (("", neutral, GUI_BASE + rows), ("_accent", accent, GUI_ACCENT + rows)):
             file = f"grid_{rows}{kind}.png"
             (tex_dir / file).write_bytes(_png_encode(*img))
             providers.append({"type": "bitmap", "file": f"serverui:font/{file}", "height": img[1], "ascent": GUI_ASCENT, "chars": [chr(cp)]})
+    left, right = banner_wings()
+    for file, img, cp in (("banner_left.png", left, BANNER_LEFT), ("banner_right.png", right, BANNER_RIGHT)):
+        (tex_dir / file).write_bytes(_png_encode(*img))
+        providers.append({"type": "bitmap", "file": f"serverui:font/{file}", "height": img[1], "ascent": BANNER_ASCENT, "chars": [chr(cp)]})
+    if icon_chars:
+        # the icons at 3x: same picture file, same characters, height 24 - the client scales the cells
+        providers.append({"type": "bitmap", "file": "serverui:font/icons.png",
+                          "height": CELL * BIG_SCALE, "ascent": BIG_ASCENT, "chars": icon_chars})
     # the font is serverui:gui -> assets/serverui/font/gui.json, beside the textures, not under minecraft/
     own_font_dir = tex_dir.parent.parent / "font"
     own_font_dir.mkdir(parents=True, exist_ok=True)
@@ -938,7 +1017,7 @@ def build(version=None):
     (tex_dir / "icons.png").write_bytes(png)
     bars_png, bar_chars = bars()
     (tex_dir / "bars.png").write_bytes(bars_png)
-    gui_font(tex_dir, font_dir)   # serverui:gui - the chest-grid frames, its own font file
+    gui_font(tex_dir, font_dir, char_rows)   # serverui:gui - chest-grid frames, hub banners, its own font file
     import previews as pv
     pictures = pv.previews(png)
     preview_providers = []

@@ -81,6 +81,15 @@
     },
     {
       "type": "bitmap",
+      "file": "serverui:font/preview_serverui_banner.png",
+      "height": 72,
+      "ascent": 7,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
       "file": "serverui:font/preview_themecalm_hud.png",
       "height": 72,
       "ascent": 7,
