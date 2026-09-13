@@ -25,7 +25,7 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "ThemeHorror"
-VERSION = "2.3.0"      # bumped with ../bump.py, never by hand
+VERSION = "2.3.1"      # bumped with ../bump.py, never by hand
 
 DRIP = (120, 8, 8, 255)
 
@@ -87,13 +87,17 @@ def food(z, files):
         files[f"assets/minecraft/textures/gui/sprites/hud/{kind}.png"] = T.png_encode(*img)
 
 
-VEINS_W, VEINS_H = 480, 300      # the bitmap; declared 150 units tall, so 240 wide, x4 as a title = 960x600 GUI px
+# The client stitches font glyphs into 256x256 textures and silently drops one that does not fit (the
+# char then draws as the missing-glyph box), so the picture is TWO 256x256 glyphs side by side, one
+# continuous drawing across a 512x256 bitmap, sent as the string U+E000 U+E001. Declared 150 units
+# tall each, so 150 wide: 300x150 units, x4 as a title = 1200x600 GUI px.
+VEINS_W, VEINS_H = 512, 256
 VEINS_HEIGHT, VEINS_ASCENT = 150, 65   # a title draws at (-w/2, -10) scaled 4x around the screen centre: ascent = h/2 - 10 centres it
 
 
 def veins(z, files):
     """Blood veins over the whole screen, drawn by the SERVER, not by a state: ServerMenus' `veins` cue
-    sends a title whose text is one glyph of this pack's own font (`themehorror:veins`, U+E000), so the
+    sends a title whose text is two glyphs of this pack's own font (`themehorror:veins`, U+E000-E001), so the
     picture exists exactly while the cue runs and nothing vanilla ever shows it. (The frozen border was
     tried first and rolled back: a real freeze - powder snow, Toolbox's freeze trick - wore the veins too,
     and a layer cannot tell the cue from the real thing.) The veins run evenly over the picture rather
@@ -142,7 +146,7 @@ def veins(z, files):
         out.append(row)
     files["assets/themehorror/textures/font/veins.png"] = T.png_encode(w, h, out)
     files["assets/themehorror/font/veins.json"] = (
-        '{"providers": [{"type": "bitmap", "file": "themehorror:font/veins.png", "height": %d, "ascent": %d, "chars": ["\\ue000"]}]}\n'
+        '{"providers": [{"type": "bitmap", "file": "themehorror:font/veins.png", "height": %d, "ascent": %d, "chars": ["\\ue000\\ue001"]}]}\n'
         % (VEINS_HEIGHT, VEINS_ASCENT)).encode()
 
 

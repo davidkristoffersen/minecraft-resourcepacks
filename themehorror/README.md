@@ -2,7 +2,7 @@
 
 The Haunt plugin's companion layer, for Minecraft Java 26.2+, **no mods**.
 
-Download: [`ThemeHorror-2.3.0.zip`](ThemeHorror-2.3.0.zip)
+Download: [`ThemeHorror-2.3.1.zip`](ThemeHorror-2.3.1.zip)
 
 A layer that stays loaded and paints only *states* the server puts a player in, so
 Haunt can switch the look per player without a pack reload anyone could notice:

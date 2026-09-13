@@ -2,6 +2,14 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.7.1
+
+veins panel redrawn from the split bitmap
+
+## ThemeHorror 2.3.1
+
+veins glyph split into two 256x256 cells - the client drops a glyph bigger than its 256x256 font texture
+
 ## ServerUI 1.7.0
 
 veins panel for ThemeHorror; frozen-heart and frost panels retired
