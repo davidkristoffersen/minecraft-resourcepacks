@@ -179,18 +179,25 @@ def panel_food(z, files):
 
 
 def panel_nausea(z, files):
-    """The overlay texture itself, shrunk to fit, vanilla | layer - the client tints and fades it
-    over the whole screen, so this shows the shape and the colour, not the strength."""
-    rows = canvas((22, 24, 30, 255))
+    """The overlay as the client renders it at full strength: added to a dark scene, multiplied by
+    the client's own tint of (0.2, 0.4, 0.2) - vanilla's grey mask | the layer's. The shape shows
+    at 1x of the picture; in game it closes in from 2x as the effect builds."""
+    SCENE = (38, 42, 54)
+    rows = canvas((*SCENE, 255))
     van = T.texture(z, "misc/nausea.png")
     ours = decoded(files, "assets/minecraft/textures/misc/nausea.png") or van
     for side, img in ((0, van), (1, ours)):
         if not img:
             continue
         w, h, src = img
-        step = max(1, h // (H - 8))                 # 256 -> 64
-        small = (w // step, h // step, [bytearray(b"".join(src[y * step][x * step * 4:x * step * 4 + 4] for x in range(w // step))) for y in range(h // step)])
-        blit(rows, small, (0 if side == 0 else W // 2 + 1) + (W // 2 - small[0]) // 2, (H - small[1]) // 2, 1)
+        x0, y0 = (0 if side == 0 else W // 2 + 1), 0
+        pw, ph = W // 2, H
+        for py in range(ph):
+            for px in range(pw):
+                sx, sy = px * w // pw, py * h // ph      # the texture stretched over the whole panel, as over a screen
+                r, g, b = src[sy][sx * 4:sx * 4 + 3]
+                rows[y0 + py][(x0 + px) * 4:(x0 + px) * 4 + 4] = bytes((
+                    T.clamp(SCENE[0] + r * 0.2), T.clamp(SCENE[1] + g * 0.4), T.clamp(SCENE[2] + b * 0.2), 255))
     divider(rows)
     return W, H, rows
 

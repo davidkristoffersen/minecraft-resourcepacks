@@ -6,7 +6,7 @@ A companion layer that stays loaded and paints only STATES the server puts a pla
 so Haunt can switch the look on and off per player without a pack reload anyone could
 see: blood hearts that drip on the absorbing / blinking / frozen heart sprites (the cues
 Haunt plays on a victim), the Hunger effect's rotten drumsticks as raw bleeding meat (the
-`hunger` cue), the Nausea effect's screen overlay as veins of blood (the `nausea` cue), and
+`hunger` cue), the Nausea effect's screen haze as a veined red wash (the `nausea` cue), and
 the NEW MOON repainted as a blood moon - the `bloodmoon` cue shifts a player's sky to that
 phase while the director is armed. A natural new-moon
 night shows the blood moon to everyone with the pack, one night in eight. Nothing
@@ -24,7 +24,7 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "ThemeHorror"
-VERSION = "2.1.0"      # bumped with ../bump.py, never by hand
+VERSION = "2.1.1"      # bumped with ../bump.py, never by hand
 
 DRIP = (120, 8, 8, 255)
 
@@ -86,10 +86,14 @@ def food(z, files):
 
 
 def nausea(z, files):
-    """The Nausea effect's overlay (`nausea` cue): vanilla ships a grey mask, white at the
-    edges and black in the middle, that the client tints and fades in. Ours keeps that shape
-    in dark red and lays veins over it, reaching in from the edges - so whatever the client
-    tints it with, the edges of the screen crawl."""
+    """The Nausea effect's overlay (`nausea` cue). How the client draws it (Hud.extractConfusionOverlay,
+    read from the 26.2 jar): the texture is blitted over the whole screen with ADDITIVE blending,
+    multiplied by (0.2, 0.4, 0.2) x the effect's strength, and scaled from 2x down to 1x as the
+    strength rises - so vanilla's grey mask (white edges, black middle) becomes a pale green haze
+    closing in. A pack can only ADD light, and red is capped at a fifth, so the most red the screen
+    can take is +51 at full strength: the texture is therefore red at 255 wherever it is not black,
+    with no green or blue at all, reaching much further in than vanilla's so the wash covers the
+    screen, and veins at full red over a dimmer base so they read as brighter streaks."""
     img = T.texture(z, "misc/nausea.png")
     if img is None:
         return
@@ -97,17 +101,16 @@ def nausea(z, files):
     import math, random
     rnd = random.Random(1408)
     veins = [bytearray(w) for _ in range(h)]
-    for k in range(48):
+    for k in range(64):
         angle = rnd.uniform(0, 2 * math.pi)
-        # start just outside the picture, wander inwards, thinning as it goes
         x, y = w / 2 + math.cos(angle) * w * 0.75, h / 2 + math.sin(angle) * h * 0.75
-        length = rnd.randint(70, 140)
+        length = rnd.randint(90, 170)
         for step in range(length):
             angle += rnd.uniform(-0.35, 0.35)
             dist = max(1.0, math.hypot(x - w / 2, y - h / 2))
             x -= (x - w / 2) / dist * 1.4 - math.cos(angle) * 0.6   # inwards, with a wobble
             y -= (y - h / 2) / dist * 1.4 - math.sin(angle) * 0.6
-            thick = max(1, int(3 * (1 - step / length)))
+            thick = max(1, int(4 * (1 - step / length)))
             for dy in range(-thick, thick + 1):
                 for dx in range(-thick, thick + 1):
                     X, Y = int(x) + dx, int(y) + dy
@@ -117,10 +120,13 @@ def nausea(z, files):
     for y in range(h):
         row = bytearray(w * 4)
         for x in range(w):
-            m = rows[y][x * 4]                      # the vanilla mask: 255 at the edges, 0 in the middle
-            v = veins[y][x] * m // 255              # veins fade out where the mask does
-            r = T.clamp(m * 0.55 + v * 0.45)
-            row[x * 4:x * 4 + 4] = bytes((r, T.clamp(m * 0.04), T.clamp(m * 0.03), 255))
+            # our own mask: full outside a radius of 0.3, fading to nothing at 0.15 - vanilla's
+            # only starts at about 0.4, which leaves most of the screen untouched
+            d = math.hypot(x - w / 2, y - h / 2) / (w / 2)
+            m = 0.0 if d < 0.15 else 1.0 if d > 0.3 else (d - 0.15) / 0.15
+            base = 150 * m
+            vein = veins[y][x] * m
+            row[x * 4:x * 4 + 4] = bytes((T.clamp(max(base, vein)), 0, 0, 255))
         out.append(row)
     files["assets/minecraft/textures/misc/nausea.png"] = T.png_encode(w, h, out)
 

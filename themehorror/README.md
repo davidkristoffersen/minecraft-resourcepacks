@@ -2,7 +2,7 @@
 
 The Haunt plugin's companion layer, for Minecraft Java 26.2+, **no mods**.
 
-Download: [`ThemeHorror-2.1.0.zip`](ThemeHorror-2.1.0.zip)
+Download: [`ThemeHorror-2.1.1.zip`](ThemeHorror-2.1.1.zip)
 
 A layer that stays loaded and paints only *states* the server puts a player in, so
 Haunt can switch the look per player without a pack reload anyone could notice:
@@ -10,7 +10,8 @@ Haunt can switch the look per player without a pack reload anyone could notice:
 - blood hearts that drip on the absorbing, blinking and frozen heart sprites - the
   cues Haunt plays on a victim during an event;
 - the Hunger effect's rotten drumsticks as raw, bleeding meat (the `hunger` cue);
-- the Nausea effect's screen overlay as veins of blood closing in (the `nausea` cue);
+- the Nausea effect's screen haze as a veined red wash (the `nausea` cue) - the client
+  adds that overlay to the screen, so red is the most a pack can make of it;
 - the new moon repainted as a blood moon - the `bloodmoon` cue parks a player's sky
   on that phase while the director is armed. A natural new-moon night shows it to
   everyone with the pack, one night in eight.

@@ -2,6 +2,14 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.4.1
+
+nausea panel shows the haze as rendered, not the raw mask
+
+## ThemeHorror 2.1.1
+
+nausea overlay drawn for the client's additive tint: full red, wider reach
+
 ## ServerUI 1.4.0
 
 preview panels for ThemeHorror's hunger and nausea cues
