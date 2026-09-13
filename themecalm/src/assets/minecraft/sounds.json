@@ -1,0 +1,13 @@
+{
+  "ui.button.click": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "block.amethyst_block.chime",
+        "type": "event",
+        "volume": 0.35,
+        "pitch": 1.0
+      }
+    ]
+  }
+}

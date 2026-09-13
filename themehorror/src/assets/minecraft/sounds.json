@@ -1,0 +1,13 @@
+{
+  "ui.button.click": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "block.chest.close",
+        "type": "event",
+        "volume": 0.55,
+        "pitch": 0.9
+      }
+    ]
+  }
+}

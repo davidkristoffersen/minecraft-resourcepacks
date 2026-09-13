@@ -2,6 +2,18 @@
 
 One entry per published version, newest first.
 
+## ThemeHorror 1.0.0
+
+First release: blood moon in every phase, darker dripping hearts, heavier rain, a closing vignette, a chest lid for every menu click. Worn by the Haunt plugin while its director is armed.
+
+## ThemeLab 1.0.0
+
+First release: teal hearts, cyan experience bar and hotbar frame, a digital blip for every menu click. The test server's layer.
+
+## ThemeCalm 1.0.0
+
+First release: warm gold hotbar frame, a warmer sun, a soft amethyst chime for every menu click. The main server's layer.
+
 ## GlassFrame 2.8.3
 
 Back to the 2.5.0 glass: specks where vanilla puts them, stained glass untouched
