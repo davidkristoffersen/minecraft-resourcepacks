@@ -87,6 +87,10 @@ def png_decode(data):
 
 
 def png_encode(w, h, rows):
+    # a row of the wrong length is a PNG the client calls corrupt - and a corrupt glyph sheet in
+    # the default font takes every server pack down with it, so refuse to write one
+    assert len(rows) == h and all(len(r) == w * 4 for r in rows), \
+        f"png_encode: {w}x{h} but rows are {len(rows)} x {sorted(set(len(r) for r in rows))} bytes"
     raw = b"".join(b"\x00" + bytes(r) for r in rows)
 
     def chunk(tag, body):

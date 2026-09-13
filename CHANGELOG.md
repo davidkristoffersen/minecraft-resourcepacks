@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.4.2
+
+nausea preview panel wrote past the row end - a corrupt PNG the client rejected, failing every pack
+
 ## ServerUI 1.4.1
 
 nausea panel shows the haze as rendered, not the raw mask

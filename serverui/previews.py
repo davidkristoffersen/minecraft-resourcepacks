@@ -191,7 +191,7 @@ def panel_nausea(z, files):
             continue
         w, h, src = img
         x0, y0 = (0 if side == 0 else W // 2 + 1), 0
-        pw, ph = W // 2, H
+        pw, ph = (W // 2 if side == 0 else W - x0), H     # the right panel is one column narrower (the divider)
         for py in range(ph):
             for px in range(pw):
                 sx, sy = px * w // pw, py * h // ph      # the texture stretched over the whole panel, as over a screen
