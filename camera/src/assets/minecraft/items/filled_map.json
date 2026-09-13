@@ -1,0 +1,35 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "camera:item/polaroid",
+      "tints": [
+        {
+          "type": "minecraft:constant",
+          "value": -1
+        },
+        {
+          "type": "minecraft:map_color",
+          "default": 9417948
+        }
+      ]
+    },
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/filled_map",
+      "tints": [
+        {
+          "type": "minecraft:constant",
+          "value": -1
+        },
+        {
+          "type": "minecraft:map_color",
+          "default": 4603950
+        }
+      ]
+    }
+  }
+}

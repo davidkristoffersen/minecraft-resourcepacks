@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.6.0
+
+Preview panel for the Camera pack (U+E120): the camera and a photo, without | with.
+
 ## ServerUI 1.5.0
 
 frost-border panel for ThemeHorror replaces the nausea one

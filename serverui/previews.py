@@ -25,6 +25,7 @@ ASCENT = 7                     # hangs down from the first line: the menu pads 8
 # several. LookPacksMenu.PREVIEW_GLYPHS carries the same code points with the captions.
 PREVIEWS = {
     "GlassFrame": [("glass", 0xE100)],
+    "Camera": [("items", 0xE120)],
     "ServerUI": [("icons", 0xE101)],
     "ThemeCalm": [("hud", 0xE102)],
     "ThemeLab": [("hud", 0xE103)],
@@ -246,6 +247,32 @@ def preview_glassframe(z):
     return W, H, rows
 
 
+def preview_camera(z):
+    """The Camera plugin's two items at 3x: a recovery compass and a filled map on the left, as a
+    client without the pack draws them; the camera loaded with film and a polaroid on the right,
+    the picture tinted as a photo of a clear day would be."""
+    cam = _load("camera")
+    tex = cam.textures()
+    rows = canvas(HUD_BACK)
+    compass = T.texture(z, "item/recovery_compass_16.png")
+    vanilla_map = T.texture(z, "item/filled_map.png")
+    markings = T.texture(z, "item/filled_map_markings.png")
+    sky = (120, 170, 220)
+    y = (H - 48) // 2
+    if compass:
+        blit(rows, compass, 16, y, 3)
+    if vanilla_map:
+        blit(rows, vanilla_map, 64, y, 3)
+        if markings:
+            blit(rows, cam.tinted(markings, (0x46, 0x40, 0x2E)), 64, y, 3)
+    right = W // 2 + 1
+    blit(rows, tex["camera_loaded"], right + 16, y, 3)
+    blit(rows, tex["polaroid"], right + 64, y, 3)
+    blit(rows, cam.tinted(tex["polaroid_picture"], sky), right + 64, y, 3)
+    divider(rows)
+    return W, H, rows
+
+
 def preview_serverui(sheet_png):
     """Our own icons: the first three rows of the sheet at 2x, one panel - without the pack there
     is nothing to draw the 'before' with (it would be Unifont, which we do not have)."""
@@ -262,6 +289,7 @@ def previews(sheet_png):
     out = {}
     if z is not None:
         out[("GlassFrame", "glass")] = preview_glassframe(z)
+        out[("Camera", "items")] = preview_camera(z)
         out[("ThemeCalm", "hud")] = preview_theme(z, "themecalm", sun)
         out[("ThemeLab", "hud")] = preview_theme(z, "themelab")
         horror = _load("themehorror").derive(z)

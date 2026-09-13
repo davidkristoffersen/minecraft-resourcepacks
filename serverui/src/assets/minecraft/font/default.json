@@ -54,6 +54,15 @@
     },
     {
       "type": "bitmap",
+      "file": "serverui:font/preview_camera_items.png",
+      "height": 72,
+      "ascent": 7,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
       "file": "serverui:font/preview_serverui_icons.png",
       "height": 72,
       "ascent": 7,
