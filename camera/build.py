@@ -105,7 +105,7 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "Camera"
-VERSION = "1.5.0"         # bumped with ../bump.py, never by hand
+VERSION = "1.6.0"         # bumped with ../bump.py, never by hand
 
 PALETTE = {
     ".": None,
@@ -192,6 +192,17 @@ ZOOM_CAMERA = [
 # Where the flash's rays go when a shot has just been taken: over the flash unit, or either
 # side of the flash camera's housing, which already fills that row.
 RAYS = ".........y.y.y.."
+# The three cameras wear three shells. The body is one drawing for all of them, so the plain
+# camera's cream, the flash camera's warm yellow and the zoom camera's cold blue are a palette
+# override on the body characters alone - which tells them apart in the inventory AND on every
+# face of the little three-dimensional camera, where the flash unit and the long barrel were
+# the only difference and neither of them is on the side you look at while aiming.
+SHELL = {
+    "camera": {},
+    "flashcam": {"w": (247, 231, 176, 255), "W": (255, 246, 214, 255), "s": (222, 198, 138, 255)},
+    "zoomcam": {"w": (198, 222, 240, 255), "W": (228, 242, 255, 255), "s": (160, 190, 214, 255)},
+}
+
 RAYS_FLASHCAM = "......y.kwwwwk.y"
 
 # The polaroid, layer 0: the card. The window (rows 2-9, cols 4-11) is clear so layer 1 shows.
@@ -257,21 +268,21 @@ POLAROID_PICTURE = [
 ]
 
 
-def sprite(rows):
-    """(16, 16, rgba rows) from a table."""
+def sprite(rows, shell=None):
+    """(16, 16, rgba rows) from a table, `shell` overriding palette entries for this camera."""
     out = []
     for row in rows:
         assert len(row) == 16, row
         line = bytearray()
         for ch in row:
-            px = PALETTE[ch]
+            px = (shell or {}).get(ch, PALETTE[ch])
             line += bytes(px) if px else b"\x00\x00\x00\x00"
         out.append(line)
     assert len(out) == 16
     return 16, 16, out
 
 
-def camera_state(state, body=None, rays=RAYS):
+def camera_state(state, body=None, rays=RAYS, shell=None):
     """One camera in one of its three states, derived from that camera's one drawing: no film
     (red light, no paper tab), loaded, and the moment after a shot (window and lens alight)."""
     rows = list(body or CAMERA)
@@ -283,7 +294,7 @@ def camera_state(state, body=None, rays=RAYS):
         # window and lens alight in one pass - chained replaces would whiten the glint twice over
         alight = str.maketrans("flb", "FbB")
         rows = [r.translate(alight) for r in rows]
-    return sprite(rows)
+    return sprite(rows, shell)
 
 
 def textures():
@@ -292,7 +303,7 @@ def textures():
     for prefix, body, rays in (("camera", CAMERA, RAYS), ("flashcam", FLASH_CAMERA, RAYS_FLASHCAM),
                                ("zoomcam", ZOOM_CAMERA, RAYS)):
         for state in ("empty", "loaded", "flash"):
-            out[f"{prefix}_{state}"] = camera_state(state, body, rays)
+            out[f"{prefix}_{state}"] = camera_state(state, body, rays, SHELL[prefix])
     out["polaroid"] = sprite(POLAROID_CARD)
     out["polaroid_picture"] = sprite(POLAROID_PICTURE)
     out["film"] = sprite(FILM)
@@ -337,7 +348,11 @@ def by_film(prefix, lit, fallback):
 def camera_definition(z):
     """The recovery compass: which camera (float 1), then its state. The kind dispatch falls back
     to the plain camera, so a camera crafted before the variants still draws as one; only a stack
-    with no film count either - a real recovery compass - reaches the vanilla definition."""
+    with no film count either - a real recovery compass - reaches the vanilla definition.
+
+    Kind 2, the zoom camera, is here as well as in the spyglass definition: an empty zoom camera
+    is turned into a compass by the plugin, because a spyglass raises itself from the item and
+    nothing server-side can stop a camera with no film from scoping while it is one."""
     vanilla = vanilla_definition(z, "recovery_compass")
 
     def by_kind(lit):
@@ -347,6 +362,7 @@ def camera_definition(z):
             "entries": [
                 {"threshold": 0.0, "model": by_film("camera", lit, vanilla)},
                 {"threshold": 1.0, "model": by_film("flashcam", lit, vanilla)},
+                {"threshold": 2.0, "model": by_film("zoomcam", lit, vanilla)},
             ],
             "fallback": by_film("camera", lit, vanilla),
         }

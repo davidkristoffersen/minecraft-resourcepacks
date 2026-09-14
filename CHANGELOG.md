@@ -2,6 +2,14 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.13.2
+
+Patch bump by publish-packs.py: the pack changed without a version bump.
+
+## Camera 1.6.0
+
+the three cameras wear three shells (cream, warm, cold) so they are told apart in the hand as well as the inventory, and the compass definition gains the zoom camera for when it is empty
+
 ## Camera 1.5.0
 
 the held camera is solid: its faces take a gap-filled copy of the drawing, plain body sides and a viewfinder eyepiece on the back, so the raised camera is no longer see-through
