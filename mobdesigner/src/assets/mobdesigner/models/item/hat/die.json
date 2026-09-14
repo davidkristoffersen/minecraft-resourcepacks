@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "mobdesigner:item/hat/die_1",
+    "down": "mobdesigner:item/hat/die_1",
+    "up": "mobdesigner:item/hat/die_6",
+    "north": "mobdesigner:item/hat/die_2",
+    "south": "mobdesigner:item/hat/die_5",
+    "west": "mobdesigner:item/hat/die_3",
+    "east": "mobdesigner:item/hat/die_4"
+  }
+}

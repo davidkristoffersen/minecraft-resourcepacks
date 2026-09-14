@@ -1,0 +1,20 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "cases": [
+      {
+        "when": "spark",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/aura/spark"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/glowstone_dust"
+    }
+  }
+}

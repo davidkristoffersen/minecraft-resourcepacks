@@ -2,6 +2,14 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.13.1
+
+Patch bump by publish-packs.py: the pack changed without a version bump.
+
+## MobDesigner 1.1.0
+
+Beyond the costume: wings for the Vampire and Arsonist, a staff, a cudgel and a knife as hand items, a bomb and a die as creeper hats, aura sprites for eight designs, a voice per design (pools of vanilla sounds plus three synthesised signatures) and the Hexer - the Illusioner repainted whole
+
 ## MobDesigner 1.0.0
 
 First release: a costume (armour-layer texture) for 18 designed humanoids and a spawn egg picture for all 24 designs of the Mob Designer

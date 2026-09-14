@@ -44,6 +44,32 @@ is then its business, and the picture is always that variant's.
 skin, clothes and trousers recoloured by luminance (shading kept), the costume's strongest
 piece drawn over it (a hood, a mask, glowing eyes) and a badge of its emblem in the corner.
 
+Beyond the costume (1.1.0)
+--------------------------
+`EXTRAS` gives designs the rest of what a vanilla client can draw or play per entity:
+
+  wings     a `wings` layer in the costume's chest asset - the elytra model in our texture
+            (`textures/entity/equipment/wings/<variant>.png`, the vanilla silhouette recoloured);
+            the client draws it for any humanoid whose chest item's asset has that layer
+  weapon    a hand item with `custom_model_data` strings[0] = <model>: `items/<base item>.json`
+            selects our sprite (`item/weapon/<model>`, a handheld 16x16 like every vanilla sword)
+            and falls back to the client's own definition, so a client without the pack sees the
+            base item - a stick, an iron sword
+  hat       the same for the item display riding a mob without a head layer (creepers): a cube
+            model (`item/hat/<model>`) over a vanilla block item
+  aura      `ITEM` particles resolve the item's model definition (26.2 BreakingItemParticle goes
+            through ItemModelResolver), so an aura is a sprite: `item/aura/<model>`, a 16x16 that
+            tiles one 8x8 motif 2x2 because an item particle shows a random quarter of the icon
+  voice     `sounds.json` events `voice.<variant>.{ambient,hurt,death}` - pools of vanilla sound
+            events at chosen pitches (`type: event`, nothing recorded) plus a few synthesised
+            signature sounds written as OGG through ffmpeg when it is installed (skipped otherwise,
+            the pools still play). The plugin silences the mob and plays these per viewer, the
+            vanilla sound to anyone without the pack - sounds are per-player packets, the one
+            perfectly gateable custom asset.
+
+The Hexer is a repaint of the Illusioner (`textures/entity/illager/illusioner.png`): that mob
+never spawns naturally, so a whole-type repaint leaks onto nothing - a free custom mob.
+
 Art
 ---
 `VARIANTS` below: one entry per design, a list of costume features (functions in the feature
@@ -68,7 +94,7 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "MobDesigner"
-VERSION = "1.0.0"         # bumped with ../bump.py, never by hand
+VERSION = "1.1.0"         # bumped with ../bump.py, never by hand
 NS = "mobdesigner"
 
 # ---------------------------------------------------------------- pixels
@@ -686,13 +712,362 @@ VARIANTS = {
                    egg=dict(skin=(230, 120, 40), cloth=None, pants=None, over=[], badge=("bomb", BLACK))),
     "chaos-creeper": dict(mob="creeper", features=None,
                           egg=dict(skin=(200, 80, 220), cloth=None, pants=None, over=[], badge=("question", WHITE))),
+    # an Illusioner repainted whole (it never spawns naturally, so the repaint leaks onto nothing):
+    # no armour layer on an illager, the texture IS the costume; its egg is the pillager's portrait
+    "hexer": dict(mob="pillager", features=None,
+                  egg=dict(skin=(150, 170, 140), cloth=(22, 46, 30), pants=(22, 46, 30), over=[("eyes", (120, 255, 80))],
+                           badge=("hex", (150, 120, 40)))),
 }
+
+
+# ---------------------------------------------------------------- extras: wings, weapons, hats, auras, voices
+
+WEAPON_PALETTE = {"#": (60, 40, 28), "+": (110, 78, 46), "=": (150, 110, 70), "*": (200, 60, 220), "o": (240, 180, 255),
+                  "%": (120, 124, 130), "&": (180, 186, 192), "!": (70, 30, 30), "@": (200, 40, 40), "^": (40, 24, 16),
+                  "g": (222, 180, 60)}
+
+# 16x16 handheld sprites, drawn point-up along the diagonal like every vanilla sword
+WEAPONS = {
+    "warlock_staff": [
+        "..............oo", ".............o*o", "............**oo", "...........g**..", "..........g+g...", ".........+#.....",
+        "........+#......", ".......+#.......", "......+#........", ".....+#.........", "....+#..........", "...+#...........",
+        "..+#............", ".+#.............", "##..............", "#...............",
+    ],
+    "brute_cudgel": [
+        "................", "...........^^^..", "..........^===^.", ".........^=%==^.", "........^==%==^.", "........^=====^.",
+        ".........^===^..", "........+#^^^...", ".......+#.......", "......+#........", ".....+#.........", "....+#..........",
+        "...+#...........", "..+#............", ".+#.............", "##..............",
+    ],
+    "bandit_knife": [
+        "................", "................", "...........&&&..", "..........&%&...", ".........&%&....", "........&%&.....",
+        ".......&%&......", "......&%&.......", ".....&%&........", "....!%&.........", "...!@!..........", "..!#!...........",
+        ".!#!............", "##..............", "#...............", "................",
+    ],
+}
+
+# 8x8 motifs for the aura particles, tiled 2x2
+AURAS = {
+    "blood_drop": (["...#....", "...#....", "..###...", ".#####..", ".##+##..", ".#####..", "..###...", "........"], (190, 16, 30), (240, 90, 100)),
+    "spore": (["..####..", ".#....#.", "#.#..#.#", "#......#", "#.####.#", "#..##..#", ".#....#.", "..####.."], (140, 200, 40), (220, 240, 120)),
+    "ember": (["....#...", "...##...", "..#+#...", ".##+##..", ".#+++#..", "..###...", "...#....", "........"], (240, 110, 20), (255, 230, 120)),
+    "rune": (["...##...", "..#..#..", ".#.##.#.", "#..##..#", "#..##..#", ".#.##.#.", "..#..#..", "...##..."], (150, 80, 220), (230, 190, 255)),
+    "wisp": (["........", "...##...", "..#..#..", ".#....#.", ".#....#.", "..#..#..", "...##...", "........"], (20, 18, 24), (70, 66, 80)),
+    "note": (["......#.", ".....##.", "....#.#.", "....#...", "....#...", "..###...", ".####...", "..##...."], (40, 210, 220), (200, 255, 255)),
+    "spark": (["...#....", "..##....", ".####...", "...#....", "..#.....", ".#......", "........", "........"], (120, 200, 255), (255, 255, 200)),
+    "fuse": (["..#.....", ".#.#....", "..#.#...", "....#...", "...###..", "..#####.", "..#####.", "...###.."], (250, 140, 40), (40, 36, 40)),
+}
+
+# the cube hats: (side texture rows, top texture rows), 16x16 each, '.' = base colour shade
+HATS = {
+    "bomb": dict(base=(38, 36, 44), side=[
+        "................", "................", "....+++++.......", "...+#####+......", "..+#######+.....", "..+#######+.....",
+        ".+#########+....", ".+#########+....", ".+#########+....", ".+#########+....", "..+#######+.....", "..+#######+.....",
+        "...+#####+......", "....+++++.......", "................", "................",
+    ], top=[
+        "................", "................", "................", "................", "................", "................",
+        ".......gg.......", "......g..g......", ".......g........", ".......g........", ".......g........", "......ggg.......",
+        ".....g###g......", ".....g###g......", "......ggg.......", "................",
+    ], palette={"#": (20, 18, 24), "+": (70, 66, 78), "g": (250, 140, 40)}),
+    "die": dict(base=(236, 232, 226), pips=(30, 28, 34)),
+}
+
+# voice pools: vanilla sound events with pitch and volume, picked at random per play.
+# (event, pitch, volume). A `synth` entry adds a generated signature sound to the ambient pool.
+VOICES = {
+    "vampire": dict(ambient=[("entity.bat.ambient", 0.55, 0.8), ("entity.phantom.ambient", 0.7, 0.9)],
+                    hurt=[("entity.bat.hurt", 0.6, 1.0), ("entity.zombie.hurt", 0.7, 0.8)],
+                    death=[("entity.phantom.death", 0.6, 1.0), ("entity.bat.death", 0.5, 1.0)], subtitle="Vampire hisses"),
+    "stalker": dict(ambient=[("entity.warden.listening", 1.2, 0.6), ("entity.warden.heartbeat", 1.0, 0.8)],
+                    hurt=[("entity.warden.hurt", 1.4, 0.5)], death=[("entity.warden.death", 1.5, 0.5)],
+                    synth="breath", subtitle="Stalker breathes"),
+    "warlock": dict(ambient=[("entity.evoker.ambient", 0.8, 1.0), ("entity.evoker.prepare_summon", 0.9, 0.7)],
+                    hurt=[("entity.evoker.hurt", 0.8, 1.0)], death=[("entity.evoker.death", 0.7, 1.0)],
+                    synth="chant", subtitle="Warlock chants"),
+    "siren": dict(ambient=[("entity.elder_guardian.ambient", 1.2, 0.7), ("entity.allay.ambient_without_item", 0.6, 0.8)],
+                  hurt=[("entity.drowned.hurt_water", 1.3, 1.0), ("entity.dolphin.hurt", 0.8, 0.9)],
+                  death=[("entity.elder_guardian.death", 1.3, 0.6)], synth="song", subtitle="Siren sings"),
+    "brute": dict(ambient=[("entity.ravager.ambient", 0.9, 0.9), ("entity.zombie.ambient", 0.5, 1.2)],
+                  hurt=[("entity.ravager.hurt", 0.9, 1.0), ("entity.zombie.hurt", 0.5, 1.0)],
+                  death=[("entity.ravager.death", 0.8, 1.0)], subtitle="Brute roars"),
+    "arsonist": dict(ambient=[("entity.blaze.ambient", 1.0, 0.7), ("block.fire.ambient", 0.8, 1.0)],
+                     hurt=[("entity.blaze.hurt", 1.1, 1.0)], death=[("entity.blaze.death", 0.9, 1.0), ("block.fire.extinguish", 1.0, 1.0)],
+                     subtitle="Arsonist crackles"),
+    "plague-bearer": dict(ambient=[("entity.husk.ambient", 0.7, 1.0), ("entity.slime.squish", 0.6, 0.8), ("entity.zombie_villager.ambient", 0.6, 1.0)],
+                          hurt=[("entity.husk.hurt", 0.7, 1.0), ("entity.slime.hurt", 0.7, 1.0)],
+                          death=[("entity.husk.death", 0.6, 1.0), ("entity.slime.death_small", 0.6, 1.0)], subtitle="Plague-bearer gurgles"),
+    "blinker": dict(ambient=[("entity.enderman.ambient", 1.1, 0.6), ("entity.endermite.ambient", 0.8, 0.8)],
+                    hurt=[("entity.enderman.hurt", 1.2, 0.7)], death=[("entity.enderman.death", 1.1, 0.7)], subtitle="Blinker warps"),
+    "juggernaut": dict(ambient=[("entity.zombie.ambient", 0.45, 1.2), ("block.anvil.land", 0.5, 0.4), ("entity.ravager.step", 0.7, 0.8)],
+                       hurt=[("entity.iron_golem.hurt", 0.8, 1.0), ("entity.zombie.hurt", 0.5, 1.0)],
+                       death=[("entity.iron_golem.death", 0.7, 1.0), ("block.anvil.land", 0.6, 0.8)], subtitle="Juggernaut grinds"),
+    "chaos-creeper": dict(ambient=[("entity.shulker.ambient", 1.3, 0.6), ("block.amethyst_block.chime", 0.8, 0.8)],
+                          hurt=[("entity.creeper.hurt", 1.3, 1.0)], death=[("entity.creeper.death", 1.3, 1.0), ("entity.firework_rocket.twinkle", 1.0, 0.8)],
+                          subtitle="Chaos crackles"),
+    "boomer": dict(ambient=[("entity.tnt.primed", 0.8, 0.35)], hurt=[("entity.creeper.hurt", 0.7, 1.0)],
+                   death=[("entity.generic.explode", 0.9, 0.6)], subtitle="Boomer fizzes"),
+    "charged-creeper": dict(ambient=[("entity.lightning_bolt.impact", 1.6, 0.3), ("block.beacon.ambient", 1.5, 0.5)],
+                            hurt=[("entity.creeper.hurt", 0.9, 1.0)], death=[("entity.lightning_bolt.thunder", 1.2, 0.6)], subtitle="Charged hums"),
+    "swift": dict(ambient=[("entity.zombie.ambient", 1.35, 0.8)], hurt=[("entity.zombie.hurt", 1.4, 1.0)],
+                  death=[("entity.zombie.death", 1.4, 1.0)], subtitle="Swift pants"),
+    "baby-army": dict(ambient=[("entity.zombie.ambient", 1.6, 0.7), ("entity.cat.purreow", 1.2, 0.4)],
+                      hurt=[("entity.zombie.hurt", 1.7, 1.0)], death=[("entity.zombie.death", 1.7, 1.0)], subtitle="Baby squeaks"),
+    "bandit": dict(ambient=[("entity.pillager.ambient", 0.8, 0.7), ("entity.zombie.ambient", 0.9, 1.0)],
+                   hurt=[("entity.zombie.hurt", 0.9, 1.0)], death=[("entity.zombie.death", 0.9, 1.0)], subtitle="Bandit grumbles"),
+    "pacifist": dict(ambient=[("entity.villager.ambient", 1.1, 0.6), ("block.amethyst_block.chime", 1.0, 0.4)],
+                     hurt=[("entity.villager.hurt", 1.1, 1.0)], death=[("entity.villager.death", 1.0, 1.0)], subtitle="Friendly hums"),
+    "spider-rider": dict(ambient=[("entity.spider.ambient", 0.9, 0.6), ("entity.skeleton.ambient", 0.9, 1.0)],
+                         hurt=[("entity.skeleton.hurt", 0.9, 1.0)], death=[("entity.skeleton.death", 0.9, 1.0)], subtitle="Rider rattles"),
+    "wtf": dict(ambient=[("entity.goat.screaming.ambient", 1.0, 0.5), ("entity.villager.celebrate", 1.3, 0.6), ("entity.sheep.ambient", 1.5, 0.6)],
+                hurt=[("entity.goat.screaming.hurt", 1.0, 0.5)], death=[("entity.goat.screaming.death", 1.0, 0.5)], subtitle="wtf"),
+    "hexer": dict(ambient=[("entity.illusioner.ambient", 0.8, 1.0), ("entity.illusioner.cast_spell", 0.9, 0.6)],
+                  hurt=[("entity.illusioner.hurt", 0.8, 1.0)], death=[("entity.illusioner.death", 0.7, 1.0)], subtitle="Hexer mutters"),
+}
+
+# what each design carries besides its costume: wings=(membrane, vein, glow or None),
+# weapon=(base item, model), hat=(base item, model), aura=(base item, model)
+EXTRAS = {
+    "vampire": dict(wings=((44, 16, 28), (110, 20, 30), None), aura=("redstone", "blood_drop")),
+    "arsonist": dict(wings=((30, 26, 30), (60, 50, 50), (255, 150, 40)), aura=("blaze_powder", "ember")),
+    "warlock": dict(weapon=("stick", "warlock_staff"), aura=("amethyst_shard", "rune")),
+    "brute": dict(weapon=("stick", "brute_cudgel")),
+    "bandit": dict(weapon=("iron_sword", "bandit_knife")),
+    "plague-bearer": dict(aura=("slime_ball", "spore")),
+    "stalker": dict(aura=("coal", "wisp")),
+    "siren": dict(aura=("prismarine_shard", "note")),
+    "charged-creeper": dict(aura=("glowstone_dust", "spark")),
+    "boomer": dict(hat=("tnt", "bomb"), aura=("gunpowder", "fuse")),
+    "chaos-creeper": dict(hat=("target", "die")),
+}
+
+# item definitions the extras override, base item -> [(string, model path)]
+def extra_overrides():
+    out = {}
+    for vid, extra in EXTRAS.items():
+        for kind in ("weapon", "hat", "aura"):
+            if kind in extra:
+                base, model = extra[kind]
+                out.setdefault(base, []).append((model, f"{NS}:item/{kind}/{model}"))
+    return out
+
+
+def sprite16(rows, palette, base=None):
+    img = blank(16, 16)
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            if ch == "." and base is None:
+                continue
+            c = palette.get(ch, base)
+            if c is not None:
+                put(img, x, y, c)
+    return img
+
+
+def aura_texture(model):
+    rows, dark, light = AURAS[model]
+    img = blank(16, 16)
+    for ty in range(2):
+        for tx in range(2):
+            for y, row in enumerate(rows):
+                for x, ch in enumerate(row):
+                    if ch == "#":
+                        put(img, tx * 8 + x, ty * 8 + y, dark)
+                    elif ch == "+":
+                        put(img, tx * 8 + x, ty * 8 + y, light)
+    return img
+
+
+def die_face(n, base, pip):
+    img = blank(16, 16)
+    for y in range(16):
+        for x in range(16):
+            edge = x in (0, 15) or y in (0, 15)
+            put(img, x, y, shade(base, 0.8 if edge else (1.0 if (x + y) % 2 else 0.96)))
+    spots = {1: [(7, 7)], 2: [(3, 3), (11, 11)], 3: [(3, 3), (7, 7), (11, 11)], 4: [(3, 3), (11, 3), (3, 11), (11, 11)],
+             5: [(3, 3), (11, 3), (7, 7), (3, 11), (11, 11)], 6: [(3, 2), (11, 2), (3, 7), (11, 7), (3, 12), (11, 12)]}[n]
+    for sx, sy in spots:
+        for dy in range(2):
+            for dx in range(2):
+                put(img, sx + dx, sy + dy, pip)
+    return img
+
+
+def hat_textures(model):
+    """{texture name: image} for a cube hat."""
+    spec = HATS[model]
+    if model == "die":
+        return {f"die_{n}": die_face(n, spec["base"], spec["pips"]) for n in range(1, 7)}
+    pal = dict(spec["palette"])
+    return {f"{model}_side": sprite16(spec["side"], pal), f"{model}_top": sprite16(spec["top"], pal)}
+
+
+def hat_model(model):
+    if model == "die":
+        faces = {"down": 1, "up": 6, "north": 2, "south": 5, "west": 3, "east": 4}
+        return {"parent": "minecraft:block/cube", "textures": {"particle": f"{NS}:item/hat/die_1",
+                **{face: f"{NS}:item/hat/die_{n}" for face, n in faces.items()}}}
+    tex = {"particle": f"{NS}:item/hat/{model}_side", "up": f"{NS}:item/hat/{model}_top", "down": f"{NS}:item/hat/{model}_side"}
+    for face in ("north", "south", "west", "east"):
+        tex[face] = f"{NS}:item/hat/{model}_side"
+    return {"parent": "minecraft:block/cube", "textures": tex}
+
+
+WING_REGION = (22, 0, 24, 22)   # the elytra's wing on the 64x32 sheet: both wings share it (the left is mirrored)
+
+
+def wing_texture(z, membrane, vein, glow):
+    """The vanilla elytra silhouette in our colours: a pixel's brightness relative to the wing's
+    average decides membrane (light) or vein (dark); glow speckles the membrane."""
+    out = blank(64, 32)
+    src = T.texture(z, "entity/equipment/wings/elytra.png") if z is not None else None
+    if src is None:
+        return out
+    x0, y0, w, h = WING_REGION
+    pixels = [(x, y, get(src, x, y)) for y in range(y0, y0 + h) for x in range(x0, x0 + w) if get(src, x, y)[3]]
+    if not pixels:
+        return out
+    avg = sum(lum(p) for _, _, p in pixels) / len(pixels)
+    rnd = noise(29)
+    for x, y, p in pixels:
+        f = lum(p) / avg
+        c = membrane if f >= 0.97 else vein
+        c = shade(c, 0.85 + 0.3 * min(1.3, f) / 1.3)
+        if glow and f >= 0.97 and rnd() < 0.12:
+            c = glow
+        put(out, x, y, c)
+    return out
+
+
+def hexer_texture(z):
+    """The Illusioner repainted: its blue robe and hood in hexer green-black, the eyes lit."""
+    src = T.texture(z, "entity/illager/illusioner.png") if z is not None else None
+    if src is None:
+        return blank(64, 64)
+    w, h, _ = src
+    out = blank(w, h)
+    robe, trim = (22, 46, 30), (150, 120, 40)
+    for y in range(h):
+        for x in range(w):
+            p = get(src, x, y)
+            if p[3] == 0:
+                continue
+            hh, s, l = hue_sat_lum(p)
+            if 190 <= hh < 230 and s > 0.45:          # the blues of the robe and hood
+                f = 0.5 + 0.5 * (l / 90.0)
+                c = tuple(clamp(t * f) for t in robe)
+                if l > 120:                          # the light blue trim
+                    c = trim
+                put(out, x, y, c)
+            elif s < 0.15 and l > 120:                # the grey face - a little greener, paler
+                put(out, x, y, (clamp(p[0] * 0.92), clamp(p[1] * 1.02), clamp(p[2] * 0.9)))
+            else:
+                put(out, x, y, p[:3])
+    # eyes: the head's front face is at (8, 8), 8x10; the illager eye row is its row 6
+    for x, c in ((9, (20, 20, 20)), (10, (120, 255, 80)), (13, (120, 255, 80)), (14, (20, 20, 20))):
+        put(out, x, 14, c)
+    return out
+
+
+# ---------------------------------------------------------------- voices: sounds.json and synthesised signatures
+
+def synth_samples(kind, rate=22050):
+    """A signature sound as 16-bit mono samples - deterministic, no numpy."""
+    import math
+    import struct
+    out = []
+    rnd = noise(3)
+    if kind == "song":          # a siren: a slow rising-falling melody with vibrato and a chorus
+        notes = [440, 523.25, 659.25, 587.33, 523.25, 440]
+        n_len = int(rate * 0.45)
+        for i, f in enumerate(notes):
+            for k in range(n_len):
+                t = k / rate
+                env = math.sin(math.pi * k / n_len) ** 0.6
+                vib = 1 + 0.012 * math.sin(2 * math.pi * 5.5 * t)
+                v = 0.55 * math.sin(2 * math.pi * f * vib * t) + 0.25 * math.sin(2 * math.pi * f * 2 * vib * t + 0.3) \
+                    + 0.2 * math.sin(2 * math.pi * f * 1.004 * t)
+                out.append(v * env * 0.5)
+    elif kind == "chant":       # a warlock: a low drone with slowly moving formants
+        length = int(rate * 2.4)
+        for k in range(length):
+            t = k / rate
+            env = min(1.0, k / (rate * 0.3)) * min(1.0, (length - k) / (rate * 0.5))
+            f0 = 82 * (1 + 0.02 * math.sin(2 * math.pi * 0.7 * t))
+            v = 0
+            for hnum in range(1, 9):
+                form = 1.0 / hnum * (0.6 + 0.4 * math.sin(2 * math.pi * 0.3 * t + hnum))
+                v += form * math.sin(2 * math.pi * f0 * hnum * t)
+            out.append(v * env * 0.3)
+    else:                       # "breath": filtered noise in and out, close to the ear
+        length = int(rate * 2.2)
+        lp = 0.0
+        for k in range(length):
+            t = k / rate
+            env = 0.5 - 0.5 * math.cos(2 * math.pi * t / 2.2)
+            white = rnd() * 2 - 1
+            lp += 0.08 * (white - lp)
+            out.append(lp * env * 1.6)
+    peak = max(1e-6, max(abs(v) for v in out))
+    return b"".join(struct.pack("<h", int(max(-1, min(1, v / peak)) * 32000)) for v in out), rate
+
+
+def synth_ogg(kind):
+    """The signature sound encoded as OGG Vorbis through ffmpeg (bit-exact flags, so the same
+    input gives the same bytes); None when ffmpeg is not installed."""
+    import shutil
+    import struct
+    import subprocess
+    import tempfile
+    ffmpeg = shutil.which("ffmpeg")
+    if not ffmpeg:
+        return None
+    samples, rate = synth_samples(kind)
+    header = b"RIFF" + struct.pack("<I", 36 + len(samples)) + b"WAVEfmt " + struct.pack("<IHHIIHH", 16, 1, 1, rate, rate * 2, 2, 16) \
+        + b"data" + struct.pack("<I", len(samples))
+    with tempfile.TemporaryDirectory() as tmp:
+        wav = pathlib.Path(tmp) / f"{kind}.wav"
+        ogg = pathlib.Path(tmp) / f"{kind}.ogg"
+        wav.write_bytes(header + samples)
+        # Homebrew's ffmpeg may ship without libvorbis; its own vorbis encoder is experimental and
+        # stereo-only - and Minecraft plays a stereo file flat, without position. Fine for these
+        # (a breath at the ear, a chant in the head); a positional voice line needs libvorbis, mono.
+        for encoder in (["-c:a", "libvorbis", "-q:a", "4"], ["-c:a", "vorbis", "-strict", "experimental", "-ac", "2", "-b:a", "96k"]):
+            result = subprocess.run([ffmpeg, "-loglevel", "error", "-y", "-i", str(wav), *encoder,
+                                     "-fflags", "+bitexact", "-flags", "+bitexact", "-map_metadata", "-1", str(ogg)], capture_output=True)
+            if result.returncode == 0 and ogg.exists():
+                break
+        else:
+            return None
+        return ogg.read_bytes()
+
+
+def voice_files(files):
+    """sounds.json, the lang file with subtitles, and the synthesised OGGs."""
+    events = {}
+    lang = {}
+    for vid, voice in VOICES.items():
+        for kind in ("ambient", "hurt", "death"):
+            pool = [{"name": f"minecraft:{event}", "type": "event", "pitch": pitch, "volume": volume}
+                    for event, pitch, volume in voice.get(kind, [])]
+            if kind == "ambient" and voice.get("synth"):
+                data = synth_ogg(voice["synth"])
+                if data is not None:
+                    files[f"assets/{NS}/sounds/voice/{vid}.ogg"] = data
+                    pool.append({"name": f"{NS}:voice/{vid}", "volume": 0.8, "attenuation_distance": 20})
+            if not pool:
+                continue
+            key = f"voice.{vid}.{kind}"
+            events[key] = {"sounds": pool, "subtitle": f"subtitles.{NS}.{key}"}
+            lang[f"subtitles.{NS}.{key}"] = voice.get("subtitle", vid) if kind == "ambient" else (
+                f"{voice.get('subtitle', vid).split(' ')[0]} {'hurts' if kind == 'hurt' else 'dies'}")
+    files[f"assets/{NS}/sounds.json"] = (json.dumps(events, indent=2) + "\n").encode()
+    files[f"assets/{NS}/lang/en_us.json"] = (json.dumps(lang, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+
 
 MOB_TEXTURES = {"zombie": "entity/zombie/zombie.png", "husk": "entity/zombie/husk.png",
                 "drowned": "entity/zombie/drowned.png", "skeleton": "entity/skeleton/skeleton.png",
-                "creeper": "entity/creeper/creeper.png"}
+                "creeper": "entity/creeper/creeper.png", "pillager": "entity/illager/illusioner.png"}
 MOB_SKINS = {}
-EGG_ITEMS = ("zombie", "husk", "drowned", "skeleton", "creeper")
+EGG_ITEMS = ("zombie", "husk", "drowned", "skeleton", "creeper", "pillager")
 
 
 def load_mobs(z):
@@ -762,6 +1137,13 @@ def egg_class(mob, px):
     elif mob == "creeper":
         if 80 <= h < 150 and l > 45:
             return "skin"
+    elif mob == "pillager":
+        if s < 0.2 and 100 <= l < 200:
+            return "skin"
+        if 160 <= h < 200 and s > 0.2:
+            return "cloth"
+        if (330 <= h or h < 20) and s > 0.3:
+            return "pants"
     return None
 
 
@@ -884,13 +1266,17 @@ def eggs(z):
 
 # ---------------------------------------------------------------- the doll (preview only)
 
-def doll(mob, sheets, scale=1):
+def doll(mob, sheets, scale=1, vid=None, headroom=0):
     """A front view of the dressed mob: the base skin's front faces, the leggings, the outer layer,
-    the hat. 24x36 at scale 1."""
-    w, h = 24, 36
+    the hat - plus the design's extras: wings behind the shoulders, the weapon in the right hand, a
+    cube hat over a creeper, the aura motif floating beside it. 24x(36+headroom) at scale 1; the
+    body starts `headroom` rows down so a hat has room."""
+    w, h = 24, 36 + headroom
     out = blank(w, h)
-    base = MOB_SKINS[mob]
+    base = hexer_texture(T.jar()) if vid == "hexer" else MOB_SKINS[mob]   # the Hexer IS its repaint
     thin = mob == "skeleton"
+    extra = EXTRAS.get(vid, {}) if vid else {}
+    z0 = headroom
 
     def blit(src, r, dx, dy, mirror=False):
         x0, y0, fw, fh = r
@@ -900,30 +1286,79 @@ def doll(mob, sheets, scale=1):
                 if px[3]:
                     put(out, dx + x, dy + y, px[:3])
 
+    # wings first - they hang behind the shoulders (the elytra's back face, x 36..46, 10x20)
+    if "wings" in extra:
+        # ElytraModel: texOffs(22,0), box 10x20x1 - the face you see from behind is the BACK one,
+        # at (u + d + w + d, v + d) = (34, 1); the front face at (23,1) is the hidden inner side
+        wings = wing_texture(T.jar(), *extra["wings"])
+        blit(wings, (34, 1, 10, 20), -2, z0 + 6)
+        blit(wings, (34, 1, 10, 20), 16, z0 + 6, mirror=True)
     # the mob itself
-    blit(base, HEAD["front"], 8, 0)
-    blit(base, BODY["front"], 8, 8)
-    if thin:
-        blit(base, (44, 20, 2, 12), 6, 8)
-        blit(base, (44, 20, 2, 12), 16, 8, mirror=True)
-        blit(base, (4, 20, 2, 12), 9, 20)
-        blit(base, (4, 20, 2, 12), 13, 20, mirror=True)
+    if mob == "creeper":
+        blit(base, (8, 8, 8, 8), 8, z0 + 8)            # head
+        blit(base, (20, 20, 4, 12), 10, z0 + 16)       # body
+        blit(base, (4, 20, 4, 6), 7, z0 + 28)          # legs
+        blit(base, (4, 20, 4, 6), 13, z0 + 28, mirror=True)
+    elif mob == "pillager":
+        # IllagerModel.createBodyLayer, read from resources-camera/mob-models.json: head 8x10 at
+        # texOffs 0,0; body 8x12 at 16,20; the ROBE a second body cube 8x20 at 0,38 (front face
+        # 6,44) hanging over body and legs - the piece that carries the illager's colour; arms
+        # 4x12 at 40,46; legs 4x12 at 0,22
+        blit(base, (8, 8, 8, 10), 8, z0)
+        blit(base, (22, 26, 8, 12), 8, z0 + 10)
+        blit(base, (4, 26, 4, 12), 8, z0 + 22)
+        blit(base, (4, 26, 4, 12), 12, z0 + 22, mirror=True)
+        blit(base, (44, 50, 4, 12), 4, z0 + 10)
+        blit(base, (44, 50, 4, 12), 16, z0 + 10, mirror=True)
+        blit(base, (6, 44, 8, 20), 8, z0 + 10)
     else:
-        blit(base, ARM["front"], 4, 8)
-        blit(base, ARM["front"], 16, 8, mirror=True)
-        blit(base, LEG["front"], 8, 20)
-        blit(base, LEG["front"], 12, 20, mirror=True)
+        blit(base, HEAD["front"], 8, z0)
+        blit(base, BODY["front"], 8, z0 + 8)
+        if thin:
+            blit(base, (44, 20, 2, 12), 6, z0 + 8)
+            blit(base, (44, 20, 2, 12), 16, z0 + 8, mirror=True)
+            blit(base, (4, 20, 2, 12), 9, z0 + 20)
+            blit(base, (4, 20, 2, 12), 13, z0 + 20, mirror=True)
+        else:
+            blit(base, ARM["front"], 4, z0 + 8)
+            blit(base, ARM["front"], 16, z0 + 8, mirror=True)
+            blit(base, LEG["front"], 8, z0 + 20)
+            blit(base, LEG["front"], 12, z0 + 20, mirror=True)
     if sheets is not None:
-        blit(sheets.inner, LEG["front"], 8, 20)
-        blit(sheets.inner, LEG["front"], 12, 20, mirror=True)
-        blit(sheets.inner, BODY["front"], 8, 8)
-        blit(sheets.outer, BODY["front"], 8, 8)
-        blit(sheets.outer, ARM["front"], 4, 8)
-        blit(sheets.outer, ARM["front"], 16, 8, mirror=True)
-        blit(sheets.outer, LEG["front"], 8, 20)
-        blit(sheets.outer, LEG["front"], 12, 20, mirror=True)
-        blit(sheets.outer, HEAD["front"], 8, 0)
-        blit(sheets.outer, HAT["front"], 8, 0)
+        blit(sheets.inner, LEG["front"], 8, z0 + 20)
+        blit(sheets.inner, LEG["front"], 12, z0 + 20, mirror=True)
+        blit(sheets.inner, BODY["front"], 8, z0 + 8)
+        blit(sheets.outer, BODY["front"], 8, z0 + 8)
+        blit(sheets.outer, ARM["front"], 4, z0 + 8)
+        blit(sheets.outer, ARM["front"], 16, z0 + 8, mirror=True)
+        blit(sheets.outer, LEG["front"], 8, z0 + 20)
+        blit(sheets.outer, LEG["front"], 12, z0 + 20, mirror=True)
+        blit(sheets.outer, HEAD["front"], 8, z0)
+        blit(sheets.outer, HAT["front"], 8, z0)
+    # the weapon in the right hand (the viewer's left), point up
+    if "weapon" in extra:
+        blit(sprite16(WEAPONS[extra["weapon"][1]], WEAPON_PALETTE), (0, 0, 16, 16), -3, z0 + 10)
+    # a cube hat floats over a creeper: the side texture at half size
+    if "hat" in extra and headroom >= 8:
+        hats = hat_textures(extra["hat"][1])
+        side = hats.get(f"{extra['hat'][1]}_side") or hats.get("die_5")
+        for y in range(8):
+            for x in range(8):
+                px = get(side, x * 2, y * 2)
+                if px[3]:
+                    put(out, 8 + x, z0 - 1 + y, px[:3])
+        top = hats.get(f"{extra['hat'][1]}_top")
+        if top is not None:                      # the fuse sticking out of the top
+            for y in range(4):
+                for x in range(8):
+                    px = get(top, x * 2, y * 2 + 6)
+                    if px[3]:
+                        put(out, 8 + x, z0 - 5 + y, px[:3])
+    # aura motifs beside it
+    if "aura" in extra:
+        motif = aura_texture(extra["aura"][1])
+        for dx, dy in ((0, z0 + 22), (17, z0 + 4)):
+            blit(motif, (0, 0, 8, 8), dx, dy)
     if scale == 1:
         return out
     big = blank(w * scale, h * scale)
@@ -945,9 +1380,22 @@ def textures(z=None):
     for vid, img in eggs(z).items():
         out[f"egg_{vid}"] = img
     for vid, s in sheets.items():
-        out[f"doll_{vid}"] = doll(VARIANTS[vid]["mob"], s)
-    for mob in ("zombie", "husk", "drowned", "skeleton"):
+        out[f"doll_{vid}"] = doll(VARIANTS[vid]["mob"], s, vid=vid)
+    for vid in VARIANTS:
+        if vid not in sheets:
+            out[f"doll_{vid}"] = doll(VARIANTS[vid]["mob"], None, vid=vid)
+    for mob in ("zombie", "husk", "drowned", "skeleton", "creeper", "pillager"):
         out[f"doll_{mob}"] = doll(mob, None)
+    for model, rows in WEAPONS.items():
+        out[f"weapon_{model}"] = sprite16(rows, WEAPON_PALETTE)
+    for model in AURAS:
+        out[f"aura_{model}"] = aura_texture(model)
+    for model in HATS:
+        out.update({f"hat_{name}": img for name, img in hat_textures(model).items()})
+    out["hexer_sheet"] = hexer_texture(z)
+    for vid, extra in EXTRAS.items():
+        if "wings" in extra:
+            out[f"wings_{vid}"] = wing_texture(z, *extra["wings"])
     return out
 
 
@@ -955,7 +1403,8 @@ def preview(z, sheets, egg_images, scale=3):
     """Every design: its egg at 4x, the dressed mob at 3x, on dark - preview.png."""
     ids = list(VARIANTS)
     cols = 6
-    cell_w, cell_h = 64 + 4 + 24 * scale + 12, 36 * scale + 12
+    headroom = 8
+    cell_w, cell_h = 64 + 4 + 24 * scale + 12, (36 + headroom) * scale + 12
     rows_n = (len(ids) + cols - 1) // cols
     w, h = cols * cell_w + 8, rows_n * cell_h + 8
     img = blank(w, h)
@@ -969,12 +1418,15 @@ def preview(z, sheets, egg_images, scale=3):
                 if px[3]:
                     rect(img, cx + x * 4, cy + y * 4, 4, 4, px[:3])
         s = sheets.get(vid)
-        d = doll(VARIANTS[vid]["mob"], s, scale)
+        d = doll(VARIANTS[vid]["mob"], s, scale, vid=vid, headroom=headroom)
         for y in range(d[1]):
             for x in range(d[0]):
                 px = get(d, x, y)
                 if px[3]:
                     put(img, cx + 68 + x, cy + y, px[:3])
+        if vid in VOICES:   # a little speaker mark under the egg: this one has a voice
+            for x, y in ((0, 2), (1, 1), (1, 2), (1, 3), (2, 0), (2, 1), (2, 2), (2, 3), (2, 4), (4, 1), (4, 3), (5, 2)):
+                rect(img, cx + 2 + x * 2, cy + 66 + y * 2, 2, 2, (200, 200, 210))
     return T.png_encode(*img)
 
 
@@ -999,8 +1451,20 @@ def egg_definition(z, mob):
 
 
 def equipment_definition(vid):
-    return {"layers": {layer: [{"texture": f"{NS}:{vid}"}]
-                       for layer in ("humanoid", "humanoid_baby", "humanoid_leggings")}}
+    layers = {layer: [{"texture": f"{NS}:{vid}"}] for layer in ("humanoid", "humanoid_baby", "humanoid_leggings")}
+    if "wings" in EXTRAS.get(vid, {}):
+        layers["wings"] = [{"texture": f"{NS}:{vid}"}]   # textures/entity/equipment/wings/<vid>.png
+    return {"layers": layers}
+
+
+def override_definition(z, base, cases):
+    """A vanilla item's definition with our models selected by custom_model_data strings[0]."""
+    return {"model": {
+        "type": "minecraft:select",
+        "property": "minecraft:custom_model_data", "index": 0,
+        "cases": [{"when": string, "model": {"type": "minecraft:model", "model": model}} for string, model in cases],
+        "fallback": vanilla_definition(z, base),
+    }}
 
 
 def build(version=None):
@@ -1021,6 +1485,27 @@ def build(version=None):
         files[f"assets/{NS}/textures/entity/equipment/humanoid/{vid}.png"] = T.png_encode(*s.outer)
         files[f"assets/{NS}/textures/entity/equipment/humanoid_baby/{vid}.png"] = T.png_encode(*s.outer)
         files[f"assets/{NS}/textures/entity/equipment/humanoid_leggings/{vid}.png"] = T.png_encode(*s.inner)
+    # the extras: wings, weapons, hats, auras - and the item definitions that select them
+    for vid, extra in EXTRAS.items():
+        if "wings" in extra:
+            files[f"assets/{NS}/textures/entity/equipment/wings/{vid}.png"] = T.png_encode(*wing_texture(z, *extra["wings"]))
+    for model, rows in WEAPONS.items():
+        files[f"assets/{NS}/textures/item/weapon/{model}.png"] = T.png_encode(*sprite16(rows, WEAPON_PALETTE))
+        files[f"assets/{NS}/models/item/weapon/{model}.json"] = (json.dumps(
+            {"parent": "minecraft:item/handheld", "textures": {"layer0": f"{NS}:item/weapon/{model}"}}, indent=2) + "\n").encode()
+    for model in HATS:
+        for name, img in hat_textures(model).items():
+            files[f"assets/{NS}/textures/item/hat/{name}.png"] = T.png_encode(*img)
+        files[f"assets/{NS}/models/item/hat/{model}.json"] = (json.dumps(hat_model(model), indent=2) + "\n").encode()
+    for model in AURAS:
+        files[f"assets/{NS}/textures/item/aura/{model}.png"] = T.png_encode(*aura_texture(model))
+        files[f"assets/{NS}/models/item/aura/{model}.json"] = (json.dumps(
+            {"parent": "minecraft:item/generated", "textures": {"layer0": f"{NS}:item/aura/{model}"}}, indent=2) + "\n").encode()
+    for base, cases in extra_overrides().items():
+        files[f"assets/minecraft/items/{base}.json"] = (json.dumps(override_definition(z, base, cases), indent=2) + "\n").encode()
+    # the Hexer: the Illusioner's own texture, repainted
+    files["assets/minecraft/textures/entity/illager/illusioner.png"] = T.png_encode(*hexer_texture(z))
+    voice_files(files)
 
     (HERE / "preview.png").write_bytes(preview(z, sheets, egg_images))
 

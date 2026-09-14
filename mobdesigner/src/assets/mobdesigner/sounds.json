@@ -1,0 +1,824 @@
+{
+  "voice.vampire.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.bat.ambient",
+        "type": "event",
+        "pitch": 0.55,
+        "volume": 0.8
+      },
+      {
+        "name": "minecraft:entity.phantom.ambient",
+        "type": "event",
+        "pitch": 0.7,
+        "volume": 0.9
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.vampire.ambient"
+  },
+  "voice.vampire.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.bat.hurt",
+        "type": "event",
+        "pitch": 0.6,
+        "volume": 1.0
+      },
+      {
+        "name": "minecraft:entity.zombie.hurt",
+        "type": "event",
+        "pitch": 0.7,
+        "volume": 0.8
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.vampire.hurt"
+  },
+  "voice.vampire.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.phantom.death",
+        "type": "event",
+        "pitch": 0.6,
+        "volume": 1.0
+      },
+      {
+        "name": "minecraft:entity.bat.death",
+        "type": "event",
+        "pitch": 0.5,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.vampire.death"
+  },
+  "voice.stalker.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.warden.listening",
+        "type": "event",
+        "pitch": 1.2,
+        "volume": 0.6
+      },
+      {
+        "name": "minecraft:entity.warden.heartbeat",
+        "type": "event",
+        "pitch": 1.0,
+        "volume": 0.8
+      },
+      {
+        "name": "mobdesigner:voice/stalker",
+        "volume": 0.8,
+        "attenuation_distance": 20
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.stalker.ambient"
+  },
+  "voice.stalker.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.warden.hurt",
+        "type": "event",
+        "pitch": 1.4,
+        "volume": 0.5
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.stalker.hurt"
+  },
+  "voice.stalker.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.warden.death",
+        "type": "event",
+        "pitch": 1.5,
+        "volume": 0.5
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.stalker.death"
+  },
+  "voice.warlock.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.evoker.ambient",
+        "type": "event",
+        "pitch": 0.8,
+        "volume": 1.0
+      },
+      {
+        "name": "minecraft:entity.evoker.prepare_summon",
+        "type": "event",
+        "pitch": 0.9,
+        "volume": 0.7
+      },
+      {
+        "name": "mobdesigner:voice/warlock",
+        "volume": 0.8,
+        "attenuation_distance": 20
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.warlock.ambient"
+  },
+  "voice.warlock.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.evoker.hurt",
+        "type": "event",
+        "pitch": 0.8,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.warlock.hurt"
+  },
+  "voice.warlock.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.evoker.death",
+        "type": "event",
+        "pitch": 0.7,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.warlock.death"
+  },
+  "voice.siren.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.elder_guardian.ambient",
+        "type": "event",
+        "pitch": 1.2,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:entity.allay.ambient_without_item",
+        "type": "event",
+        "pitch": 0.6,
+        "volume": 0.8
+      },
+      {
+        "name": "mobdesigner:voice/siren",
+        "volume": 0.8,
+        "attenuation_distance": 20
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.siren.ambient"
+  },
+  "voice.siren.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.drowned.hurt_water",
+        "type": "event",
+        "pitch": 1.3,
+        "volume": 1.0
+      },
+      {
+        "name": "minecraft:entity.dolphin.hurt",
+        "type": "event",
+        "pitch": 0.8,
+        "volume": 0.9
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.siren.hurt"
+  },
+  "voice.siren.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.elder_guardian.death",
+        "type": "event",
+        "pitch": 1.3,
+        "volume": 0.6
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.siren.death"
+  },
+  "voice.brute.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.ravager.ambient",
+        "type": "event",
+        "pitch": 0.9,
+        "volume": 0.9
+      },
+      {
+        "name": "minecraft:entity.zombie.ambient",
+        "type": "event",
+        "pitch": 0.5,
+        "volume": 1.2
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.brute.ambient"
+  },
+  "voice.brute.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.ravager.hurt",
+        "type": "event",
+        "pitch": 0.9,
+        "volume": 1.0
+      },
+      {
+        "name": "minecraft:entity.zombie.hurt",
+        "type": "event",
+        "pitch": 0.5,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.brute.hurt"
+  },
+  "voice.brute.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.ravager.death",
+        "type": "event",
+        "pitch": 0.8,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.brute.death"
+  },
+  "voice.arsonist.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.blaze.ambient",
+        "type": "event",
+        "pitch": 1.0,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:block.fire.ambient",
+        "type": "event",
+        "pitch": 0.8,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.arsonist.ambient"
+  },
+  "voice.arsonist.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.blaze.hurt",
+        "type": "event",
+        "pitch": 1.1,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.arsonist.hurt"
+  },
+  "voice.arsonist.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.blaze.death",
+        "type": "event",
+        "pitch": 0.9,
+        "volume": 1.0
+      },
+      {
+        "name": "minecraft:block.fire.extinguish",
+        "type": "event",
+        "pitch": 1.0,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.arsonist.death"
+  },
+  "voice.plague-bearer.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.husk.ambient",
+        "type": "event",
+        "pitch": 0.7,
+        "volume": 1.0
+      },
+      {
+        "name": "minecraft:entity.slime.squish",
+        "type": "event",
+        "pitch": 0.6,
+        "volume": 0.8
+      },
+      {
+        "name": "minecraft:entity.zombie_villager.ambient",
+        "type": "event",
+        "pitch": 0.6,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.plague-bearer.ambient"
+  },
+  "voice.plague-bearer.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.husk.hurt",
+        "type": "event",
+        "pitch": 0.7,
+        "volume": 1.0
+      },
+      {
+        "name": "minecraft:entity.slime.hurt",
+        "type": "event",
+        "pitch": 0.7,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.plague-bearer.hurt"
+  },
+  "voice.plague-bearer.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.husk.death",
+        "type": "event",
+        "pitch": 0.6,
+        "volume": 1.0
+      },
+      {
+        "name": "minecraft:entity.slime.death_small",
+        "type": "event",
+        "pitch": 0.6,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.plague-bearer.death"
+  },
+  "voice.blinker.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.enderman.ambient",
+        "type": "event",
+        "pitch": 1.1,
+        "volume": 0.6
+      },
+      {
+        "name": "minecraft:entity.endermite.ambient",
+        "type": "event",
+        "pitch": 0.8,
+        "volume": 0.8
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.blinker.ambient"
+  },
+  "voice.blinker.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.enderman.hurt",
+        "type": "event",
+        "pitch": 1.2,
+        "volume": 0.7
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.blinker.hurt"
+  },
+  "voice.blinker.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.enderman.death",
+        "type": "event",
+        "pitch": 1.1,
+        "volume": 0.7
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.blinker.death"
+  },
+  "voice.juggernaut.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.zombie.ambient",
+        "type": "event",
+        "pitch": 0.45,
+        "volume": 1.2
+      },
+      {
+        "name": "minecraft:block.anvil.land",
+        "type": "event",
+        "pitch": 0.5,
+        "volume": 0.4
+      },
+      {
+        "name": "minecraft:entity.ravager.step",
+        "type": "event",
+        "pitch": 0.7,
+        "volume": 0.8
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.juggernaut.ambient"
+  },
+  "voice.juggernaut.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.iron_golem.hurt",
+        "type": "event",
+        "pitch": 0.8,
+        "volume": 1.0
+      },
+      {
+        "name": "minecraft:entity.zombie.hurt",
+        "type": "event",
+        "pitch": 0.5,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.juggernaut.hurt"
+  },
+  "voice.juggernaut.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.iron_golem.death",
+        "type": "event",
+        "pitch": 0.7,
+        "volume": 1.0
+      },
+      {
+        "name": "minecraft:block.anvil.land",
+        "type": "event",
+        "pitch": 0.6,
+        "volume": 0.8
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.juggernaut.death"
+  },
+  "voice.chaos-creeper.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.shulker.ambient",
+        "type": "event",
+        "pitch": 1.3,
+        "volume": 0.6
+      },
+      {
+        "name": "minecraft:block.amethyst_block.chime",
+        "type": "event",
+        "pitch": 0.8,
+        "volume": 0.8
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.chaos-creeper.ambient"
+  },
+  "voice.chaos-creeper.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.creeper.hurt",
+        "type": "event",
+        "pitch": 1.3,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.chaos-creeper.hurt"
+  },
+  "voice.chaos-creeper.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.creeper.death",
+        "type": "event",
+        "pitch": 1.3,
+        "volume": 1.0
+      },
+      {
+        "name": "minecraft:entity.firework_rocket.twinkle",
+        "type": "event",
+        "pitch": 1.0,
+        "volume": 0.8
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.chaos-creeper.death"
+  },
+  "voice.boomer.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.tnt.primed",
+        "type": "event",
+        "pitch": 0.8,
+        "volume": 0.35
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.boomer.ambient"
+  },
+  "voice.boomer.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.creeper.hurt",
+        "type": "event",
+        "pitch": 0.7,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.boomer.hurt"
+  },
+  "voice.boomer.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.generic.explode",
+        "type": "event",
+        "pitch": 0.9,
+        "volume": 0.6
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.boomer.death"
+  },
+  "voice.charged-creeper.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.lightning_bolt.impact",
+        "type": "event",
+        "pitch": 1.6,
+        "volume": 0.3
+      },
+      {
+        "name": "minecraft:block.beacon.ambient",
+        "type": "event",
+        "pitch": 1.5,
+        "volume": 0.5
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.charged-creeper.ambient"
+  },
+  "voice.charged-creeper.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.creeper.hurt",
+        "type": "event",
+        "pitch": 0.9,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.charged-creeper.hurt"
+  },
+  "voice.charged-creeper.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.lightning_bolt.thunder",
+        "type": "event",
+        "pitch": 1.2,
+        "volume": 0.6
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.charged-creeper.death"
+  },
+  "voice.swift.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.zombie.ambient",
+        "type": "event",
+        "pitch": 1.35,
+        "volume": 0.8
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.swift.ambient"
+  },
+  "voice.swift.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.zombie.hurt",
+        "type": "event",
+        "pitch": 1.4,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.swift.hurt"
+  },
+  "voice.swift.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.zombie.death",
+        "type": "event",
+        "pitch": 1.4,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.swift.death"
+  },
+  "voice.baby-army.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.zombie.ambient",
+        "type": "event",
+        "pitch": 1.6,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:entity.cat.purreow",
+        "type": "event",
+        "pitch": 1.2,
+        "volume": 0.4
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.baby-army.ambient"
+  },
+  "voice.baby-army.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.zombie.hurt",
+        "type": "event",
+        "pitch": 1.7,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.baby-army.hurt"
+  },
+  "voice.baby-army.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.zombie.death",
+        "type": "event",
+        "pitch": 1.7,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.baby-army.death"
+  },
+  "voice.bandit.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.pillager.ambient",
+        "type": "event",
+        "pitch": 0.8,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:entity.zombie.ambient",
+        "type": "event",
+        "pitch": 0.9,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.bandit.ambient"
+  },
+  "voice.bandit.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.zombie.hurt",
+        "type": "event",
+        "pitch": 0.9,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.bandit.hurt"
+  },
+  "voice.bandit.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.zombie.death",
+        "type": "event",
+        "pitch": 0.9,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.bandit.death"
+  },
+  "voice.pacifist.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.villager.ambient",
+        "type": "event",
+        "pitch": 1.1,
+        "volume": 0.6
+      },
+      {
+        "name": "minecraft:block.amethyst_block.chime",
+        "type": "event",
+        "pitch": 1.0,
+        "volume": 0.4
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.pacifist.ambient"
+  },
+  "voice.pacifist.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.villager.hurt",
+        "type": "event",
+        "pitch": 1.1,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.pacifist.hurt"
+  },
+  "voice.pacifist.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.villager.death",
+        "type": "event",
+        "pitch": 1.0,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.pacifist.death"
+  },
+  "voice.spider-rider.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.spider.ambient",
+        "type": "event",
+        "pitch": 0.9,
+        "volume": 0.6
+      },
+      {
+        "name": "minecraft:entity.skeleton.ambient",
+        "type": "event",
+        "pitch": 0.9,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.spider-rider.ambient"
+  },
+  "voice.spider-rider.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.skeleton.hurt",
+        "type": "event",
+        "pitch": 0.9,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.spider-rider.hurt"
+  },
+  "voice.spider-rider.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.skeleton.death",
+        "type": "event",
+        "pitch": 0.9,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.spider-rider.death"
+  },
+  "voice.wtf.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.goat.screaming.ambient",
+        "type": "event",
+        "pitch": 1.0,
+        "volume": 0.5
+      },
+      {
+        "name": "minecraft:entity.villager.celebrate",
+        "type": "event",
+        "pitch": 1.3,
+        "volume": 0.6
+      },
+      {
+        "name": "minecraft:entity.sheep.ambient",
+        "type": "event",
+        "pitch": 1.5,
+        "volume": 0.6
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.wtf.ambient"
+  },
+  "voice.wtf.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.goat.screaming.hurt",
+        "type": "event",
+        "pitch": 1.0,
+        "volume": 0.5
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.wtf.hurt"
+  },
+  "voice.wtf.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.goat.screaming.death",
+        "type": "event",
+        "pitch": 1.0,
+        "volume": 0.5
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.wtf.death"
+  },
+  "voice.hexer.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.illusioner.ambient",
+        "type": "event",
+        "pitch": 0.8,
+        "volume": 1.0
+      },
+      {
+        "name": "minecraft:entity.illusioner.cast_spell",
+        "type": "event",
+        "pitch": 0.9,
+        "volume": 0.6
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.hexer.ambient"
+  },
+  "voice.hexer.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.illusioner.hurt",
+        "type": "event",
+        "pitch": 0.8,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.hexer.hurt"
+  },
+  "voice.hexer.death": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.illusioner.death",
+        "type": "event",
+        "pitch": 0.7,
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.mobdesigner.voice.hexer.death"
+  }
+}

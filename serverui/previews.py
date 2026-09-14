@@ -301,14 +301,15 @@ def panel_eggs(z):
 
 
 def panel_skins(z):
-    """Costumes: the bare zombie and skeleton on the left, four dressed designs on the right, the
-    front view at 2x (72 px tall - the panel's whole height)."""
+    """Costumes and what hangs off them: the bare zombie and skeleton on the left, on the right the
+    Vampire (caped, winged), the Warlock (robed, staff in hand), the Arsonist (ash wings, embers)
+    and the Hexer (the Illusioner's own texture repainted) - the front view at 2x, 72 px tall."""
     md = _load("mobdesigner")
     tex = md.textures(z)
     rows = canvas(HUD_BACK)
     for n, mob in enumerate(("zombie", "skeleton")):
         blit(rows, tex[f"doll_{mob}"], 24 + n * 60, 0, 2)
-    for n, vid in enumerate(("vampire", "warlock", "juggernaut", "plague-bearer")):
+    for n, vid in enumerate(("vampire", "warlock", "arsonist", "hexer")):
         blit(rows, tex[f"doll_{vid}"], W // 2 + 1 + 6 + n * 31, 0, 2)
     divider(rows)
     return W, H, rows

@@ -1,0 +1,27 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "cases": [
+      {
+        "when": "warlock_staff",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/weapon/warlock_staff"
+        }
+      },
+      {
+        "when": "brute_cudgel",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/weapon/brute_cudgel"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/stick"
+    }
+  }
+}

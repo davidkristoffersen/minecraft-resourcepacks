@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "mobdesigner:item/hat/bomb_side",
+    "up": "mobdesigner:item/hat/bomb_top",
+    "down": "mobdesigner:item/hat/bomb_side",
+    "north": "mobdesigner:item/hat/bomb_side",
+    "south": "mobdesigner:item/hat/bomb_side",
+    "west": "mobdesigner:item/hat/bomb_side",
+    "east": "mobdesigner:item/hat/bomb_side"
+  }
+}

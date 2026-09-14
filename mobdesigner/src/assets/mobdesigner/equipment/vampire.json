@@ -14,6 +14,11 @@
       {
         "texture": "mobdesigner:vampire"
       }
+    ],
+    "wings": [
+      {
+        "texture": "mobdesigner:vampire"
+      }
     ]
   }
 }

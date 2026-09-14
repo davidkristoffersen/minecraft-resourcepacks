@@ -164,6 +164,13 @@
           "type": "minecraft:model",
           "model": "mobdesigner:item/egg/chaos-creeper"
         }
+      },
+      {
+        "when": "hexer",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/hexer"
+        }
       }
     ],
     "fallback": {
