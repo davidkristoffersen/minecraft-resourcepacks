@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mobdesigner:stalker"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "mobdesigner:stalker"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mobdesigner:stalker"
+      }
+    ]
+  }
+}

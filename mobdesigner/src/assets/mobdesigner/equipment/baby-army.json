@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mobdesigner:baby-army"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "mobdesigner:baby-army"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mobdesigner:baby-army"
+      }
+    ]
+  }
+}

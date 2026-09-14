@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mobdesigner:blinker"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "mobdesigner:blinker"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mobdesigner:blinker"
+      }
+    ]
+  }
+}

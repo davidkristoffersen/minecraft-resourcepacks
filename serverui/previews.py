@@ -26,6 +26,7 @@ ASCENT = 7                     # hangs down from the first line: the menu pads 8
 PREVIEWS = {
     "GlassFrame": [("glass", 0xE100)],
     "Camera": [("items", 0xE120)],
+    "MobDesigner": [("eggs", 0xE121), ("skins", 0xE122)],
     "ServerUI": [("icons", 0xE101), ("grids", 0xE117), ("banner", 0xE118)],
     "ThemeCalm": [("hud", 0xE102)],
     "ThemeLab": [("hud", 0xE103)],
@@ -282,6 +283,37 @@ def preview_camera(z):
     return W, H, rows
 
 
+def panel_eggs(z):
+    """The Mob Designer's eggs: the five plain spawn eggs they are underneath on the left, eight of
+    the designs' own on the right, all at 2x."""
+    md = _load("mobdesigner")
+    tex = md.textures(z)
+    rows = canvas(HUD_BACK)
+    plain = [T.texture(z, f"item/{mob}_spawn_egg.png") for mob in md.EGG_ITEMS]
+    for n, img in enumerate(plain):
+        if img:
+            blit(rows, img, 8 + (n % 3) * 40, 4 + (n // 3) * 36, 2)
+    picks = ("vampire", "warlock", "brute", "stalker", "siren", "arsonist", "boomer", "pacifist")
+    for n, vid in enumerate(picks):
+        blit(rows, tex[f"egg_{vid}"], W // 2 + 1 + 6 + (n % 4) * 31, 4 + (n // 4) * 36, 2)
+    divider(rows)
+    return W, H, rows
+
+
+def panel_skins(z):
+    """Costumes: the bare zombie and skeleton on the left, four dressed designs on the right, the
+    front view at 2x (72 px tall - the panel's whole height)."""
+    md = _load("mobdesigner")
+    tex = md.textures(z)
+    rows = canvas(HUD_BACK)
+    for n, mob in enumerate(("zombie", "skeleton")):
+        blit(rows, tex[f"doll_{mob}"], 24 + n * 60, 0, 2)
+    for n, vid in enumerate(("vampire", "warlock", "juggernaut", "plague-bearer")):
+        blit(rows, tex[f"doll_{vid}"], W // 2 + 1 + 6 + n * 31, 0, 2)
+    divider(rows)
+    return W, H, rows
+
+
 def preview_serverui(sheet_png):
     """Our own icons: the first three rows of the sheet at 2x, one panel - without the pack there
     is nothing to draw the 'before' with (it would be Unifont, which we do not have)."""
@@ -332,6 +364,8 @@ def previews(sheet_png):
     if z is not None:
         out[("GlassFrame", "glass")] = preview_glassframe(z)
         out[("Camera", "items")] = preview_camera(z)
+        out[("MobDesigner", "eggs")] = panel_eggs(z)
+        out[("MobDesigner", "skins")] = panel_skins(z)
         out[("ThemeCalm", "hud")] = preview_theme(z, "themecalm", sun)
         out[("ThemeLab", "hud")] = preview_theme(z, "themelab")
         horror = _load("themehorror").derive(z)

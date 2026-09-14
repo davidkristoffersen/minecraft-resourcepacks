@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mobdesigner:spider-rider"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "mobdesigner:spider-rider"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mobdesigner:spider-rider"
+      }
+    ]
+  }
+}

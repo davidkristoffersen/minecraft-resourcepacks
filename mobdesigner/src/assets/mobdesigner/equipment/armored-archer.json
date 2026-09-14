@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mobdesigner:armored-archer"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "mobdesigner:armored-archer"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mobdesigner:armored-archer"
+      }
+    ]
+  }
+}

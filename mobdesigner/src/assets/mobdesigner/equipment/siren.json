@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mobdesigner:siren"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "mobdesigner:siren"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mobdesigner:siren"
+      }
+    ]
+  }
+}

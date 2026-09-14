@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mobdesigner:plague-bearer"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "mobdesigner:plague-bearer"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mobdesigner:plague-bearer"
+      }
+    ]
+  }
+}

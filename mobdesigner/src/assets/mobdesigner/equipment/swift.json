@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mobdesigner:swift"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "mobdesigner:swift"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mobdesigner:swift"
+      }
+    ]
+  }
+}

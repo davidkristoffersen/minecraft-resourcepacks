@@ -75,7 +75,7 @@ import zipfile
 import zlib
 
 NAME = "ServerUI"
-VERSION = "1.12.0"         # bumped with ../bump.py, never by hand
+VERSION = "1.13.0"         # bumped with ../bump.py, never by hand
 HERE = pathlib.Path(__file__).parent
 SRC = HERE / "src"
 DIST = HERE / "dist"
@@ -672,6 +672,13 @@ ART = {
            "#######",
            "##.#.##",
            ".##.##.",
+           "..###.."],
+    "🥚": ["..###..",      # an egg with a speckle
+           ".#####.",
+           "##+####",
+           "##+####",
+           "#######",
+           ".#####.",
            "..###.."],
     "📊": ["...#...",      # a bar chart on its baseline
            "...#...",

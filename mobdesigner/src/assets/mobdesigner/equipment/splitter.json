@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mobdesigner:splitter"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "mobdesigner:splitter"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mobdesigner:splitter"
+      }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mobdesigner:vampire"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "mobdesigner:vampire"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mobdesigner:vampire"
+      }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mobdesigner:warlock"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "mobdesigner:warlock"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mobdesigner:warlock"
+      }
+    ]
+  }
+}

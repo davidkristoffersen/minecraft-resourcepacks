@@ -11,7 +11,7 @@
         "🎒📦🧰☀🌙🌤🌧⛈🧪💾👥👤📜📖🌐🎲",
         "🗑⚖◎⌖♪⏹📣🔊❤🐴🐕🐈🦜🐾🧟👻",
         "🍖🌫🧬🫀🏆🗺🎥📷🔥💬💎🔔🔮🧊🍞📡",
-        "🎭📊🎮🎞▣🔍↻❔✅🎵\u0000\u0000\u0000\u0000\u0000\u0000"
+        "🎭🥚📊🎮🎞▣🔍↻❔✅🎵\u0000\u0000\u0000\u0000\u0000"
       ]
     },
     {
@@ -59,6 +59,24 @@
       "ascent": 7,
       "chars": [
         ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "serverui:font/preview_mobdesigner_eggs.png",
+      "height": 72,
+      "ascent": 7,
+      "chars": [
+        ""
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "serverui:font/preview_mobdesigner_skins.png",
+      "height": 72,
+      "ascent": 7,
+      "chars": [
+        ""
       ]
     },
     {

@@ -1,0 +1,174 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "cases": [
+      {
+        "when": "archer",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/archer"
+        }
+      },
+      {
+        "when": "blinker",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/blinker"
+        }
+      },
+      {
+        "when": "baby-army",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/baby-army"
+        }
+      },
+      {
+        "when": "splitter",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/splitter"
+        }
+      },
+      {
+        "when": "pacifist",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/pacifist"
+        }
+      },
+      {
+        "when": "armored-archer",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/armored-archer"
+        }
+      },
+      {
+        "when": "brute",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/brute"
+        }
+      },
+      {
+        "when": "spider-rider",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/spider-rider"
+        }
+      },
+      {
+        "when": "swift",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/swift"
+        }
+      },
+      {
+        "when": "warlock",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/warlock"
+        }
+      },
+      {
+        "when": "vampire",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/vampire"
+        }
+      },
+      {
+        "when": "stalker",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/stalker"
+        }
+      },
+      {
+        "when": "juggernaut",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/juggernaut"
+        }
+      },
+      {
+        "when": "plague-bearer",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/plague-bearer"
+        }
+      },
+      {
+        "when": "siren",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/siren"
+        }
+      },
+      {
+        "when": "arsonist",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/arsonist"
+        }
+      },
+      {
+        "when": "bandit",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/bandit"
+        }
+      },
+      {
+        "when": "wtf",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/wtf"
+        }
+      },
+      {
+        "when": "vengeful",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/vengeful"
+        }
+      },
+      {
+        "when": "charged-creeper",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/charged-creeper"
+        }
+      },
+      {
+        "when": "silent-creeper",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/silent-creeper"
+        }
+      },
+      {
+        "when": "boomer",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/boomer"
+        }
+      },
+      {
+        "when": "chaos-creeper",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/egg/chaos-creeper"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/creeper_spawn_egg"
+    }
+  }
+}

@@ -2,6 +2,14 @@
 
 One entry per published version, newest first.
 
+## MobDesigner 1.0.0
+
+First release: a costume (armour-layer texture) for 18 designed humanoids and a spawn egg picture for all 24 designs of the Mob Designer
+
+## ServerUI 1.13.0
+
+🥚 as an icon, and the MobDesigner panels: the designs' eggs beside the plain ones, four costumes beside the bare zombie and skeleton
+
 ## ServerUI 1.12.0
 
 📦 as an icon, for the shelf that gathers every plugin's custom items
