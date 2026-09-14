@@ -105,7 +105,7 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "Camera"
-VERSION = "1.4.0"         # bumped with ../bump.py, never by hand
+VERSION = "1.5.0"         # bumped with ../bump.py, never by hand
 
 PALETTE = {
     ".": None,
@@ -397,8 +397,9 @@ def film_definition(z):
 # The lens of each camera in its own 16x16 drawing: [x0, y0, x1, y1], used as the uv of the
 # barrel. The zoom camera's telephoto is wider and its barrel longer.
 LENS_UV = {"camera": [5, 5, 12, 12], "flashcam": [5, 5, 12, 12], "zoomcam": [3, 5, 14, 12]}
-BODY_UV = [0, 3, 16, 13]        # the body rows of the drawing: the sides of the box
-BACK_UV = [0, 1, 7, 8]          # the viewfinder corner: the end that sits at your eye
+BODY_UV = [1, 4, 2, 13]         # one opaque column of the body, stretched: a plain camera side
+BACK_UV = [1, 4, 5, 13]         # the body's left edge with its stripe: the back, the end at your eye
+EYE_UV = [2, 2, 6, 3]           # the viewfinder itself, on the little eyepiece that end carries
 FLASH_UV = [8, 1, 14, 4]        # the flash window: the little unit on top of the flash camera
 
 # The aim pose: where the camera goes in FIRST person while it is being held up.
@@ -424,6 +425,32 @@ FLASH_UV = [8, 1, 14, 4]        # the flash window: the little unit on top of th
 # a SPYGLASS-animation item that is not minecraft:spyglass keeps its ordinary held pose.
 # Third person needs nothing: AvatarRenderer maps the animation to ArmPose.SPYGLASS itself.
 AIM_POSE = {"rotation": [-90, -12, 0], "translation": [-7, 3.5, -2]}
+
+
+def fill_gaps(img):
+    """The same drawing with its holes filled, for the three-dimensional camera.
+
+    A sprite may be transparent wherever it likes - the icon is a picture on a background. A
+    box may not: a transparent texel is a hole, and through it you see the unlit inside of the
+    model (the far wall is back-face culled, so it is a window into nothing). The camera's own
+    drawing is full of them - the border, the ring around the lens, the rows above the body
+    where the viewfinder sits - and every one of them was a gap in the camera held to the eye.
+    So each transparent texel takes the colour of the nearest opaque one, which keeps the model
+    in step with the art by construction: there is still one drawing per camera state.
+    """
+    w, h, _ = img
+    out = T.solid(w, h, (0, 0, 0, 0))
+    opaque = [(x, y) for y in range(h) for x in range(w) if T.pixel(img, x, y)[3] > 0]
+    for y in range(h):
+        for x in range(w):
+            here = T.pixel(img, x, y)
+            if here[3] > 0:
+                T.set_pixel(out, x, y, here)
+                continue
+            ox, oy = min(opaque, key=lambda p: (p[0] - x) ** 2 + (p[1] - y) ** 2)
+            r, g, b, _ = T.pixel(img, ox, oy)
+            T.set_pixel(out, x, y, (r, g, b, 255))
+    return out
 
 
 def box(frm, to, faces):
@@ -456,10 +483,12 @@ def in_hand_model(name, aiming=False):
         box([6.5, 9, 6.5], [9.5, 13.5 if long_barrel else 11.5, 9.5],
             all_faces(lens, ends=lens)),
     ]
+    # the eyepiece on the back, which in the aim pose is the thing you are looking into
+    elements.append(box([7, 1.5, 7], [9, 3, 9], all_faces(EYE_UV)))
     if prefix == "flashcam":
         elements.append(box([5.5, 9, 6.5], [7.5, 10.5, 8.5], all_faces(FLASH_UV)))
     return {
-        "textures": {"camera": f"camera:item/{name}", "particle": f"camera:item/{name}"},
+        "textures": {"camera": f"camera:item/{name}_solid", "particle": f"camera:item/{name}"},
         "elements": elements,
         "display": {
             "thirdperson_righthand": {"translation": [0, -2, 0]},
@@ -539,6 +568,7 @@ def build(version=None):
             continue
         files[f"assets/camera/models/item/{name}.json"] = (json.dumps(item_model(name), indent=2) + "\n").encode()
         if not name.startswith(("film", "polaroid")):
+            files[f"assets/camera/textures/item/{name}_solid.png"] = T.png_encode(*fill_gaps(tex[name]))
             files[f"assets/camera/models/item/{name}_in_hand.json"] = (
                 json.dumps(in_hand_model(name), indent=2) + "\n").encode()
             files[f"assets/camera/models/item/{name}_aiming.json"] = (

@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## Camera 1.5.0
+
+the held camera is solid: its faces take a gap-filled copy of the drawing, plain body sides and a viewfinder eyepiece on the back, so the raised camera is no longer see-through
+
 ## Camera 1.4.0
 
 aiming raises the camera in first person too: a using_item model with a raised pose, since the client only lifts the arm in third person
