@@ -248,32 +248,36 @@ def preview_glassframe(z):
 
 
 def preview_camera(z):
-    """The Camera plugin's three items at 2x: a recovery compass, an empty map and a filled map on
-    the left, as a client without the pack draws them; the camera loaded with film, a film card
-    and a polaroid on the right, the picture tinted as a photo of a clear day would be."""
+    """The Camera plugin's items at 2x, in two rows: the three cameras over the two paper things.
+    Left is what a client without the pack draws - a recovery compass for the plain and flash
+    cameras, a spyglass for the zoom one (it really is a spyglass, that is why it zooms), an empty
+    map for film and a filled map for a photo. Right is each of them with the pack."""
     cam = _load("camera")
     tex = cam.textures()
     rows = canvas(HUD_BACK)
     compass = T.texture(z, "item/recovery_compass_16.png")
+    spyglass = T.texture(z, "item/spyglass.png")
     empty_map = T.texture(z, "item/map.png")
     vanilla_map = T.texture(z, "item/filled_map.png")
     markings = T.texture(z, "item/filled_map_markings.png")
     sky = (120, 170, 220)
-    y = (H - 32) // 2
-    xs = (12, 52, 92)
-    if compass:
-        blit(rows, compass, xs[0], y, 2)
-    if empty_map:
-        blit(rows, empty_map, xs[1], y, 2)
-    if vanilla_map:
-        blit(rows, vanilla_map, xs[2], y, 2)
-        if markings:
-            blit(rows, cam.tinted(markings, (0x46, 0x40, 0x2E)), xs[2], y, 2)
+    xs = (10, 46, 82)
+    top, bottom = 4, 36
     right = W // 2 + 1
-    blit(rows, tex["camera_loaded"], right + xs[0], y, 2)
-    blit(rows, tex["film"], right + xs[1], y, 2)
-    blit(rows, tex["polaroid"], right + xs[2], y, 2)
-    blit(rows, cam.tinted(tex["polaroid_picture"], sky), right + xs[2], y, 2)
+    for x, img in zip(xs, (compass, compass, spyglass)):
+        if img:
+            blit(rows, img, x, top, 2)
+    if empty_map:
+        blit(rows, empty_map, xs[0], bottom, 2)
+    if vanilla_map:
+        blit(rows, vanilla_map, xs[1], bottom, 2)
+        if markings:
+            blit(rows, cam.tinted(markings, (0x46, 0x40, 0x2E)), xs[1], bottom, 2)
+    for x, name in zip(xs, ("camera_loaded", "flashcam_loaded", "zoomcam_loaded")):
+        blit(rows, tex[name], right + x, top, 2)
+    blit(rows, tex["film"], right + xs[0], bottom, 2)
+    blit(rows, tex["polaroid"], right + xs[1], bottom, 2)
+    blit(rows, cam.tinted(tex["polaroid_picture"], sky), right + xs[1], bottom, 2)
     divider(rows)
     return W, H, rows
 

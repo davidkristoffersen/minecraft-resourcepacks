@@ -2,6 +2,18 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.10.1
+
+Camera panel: three cameras over film and a polaroid, two rows a side
+
+## Camera 1.2.0
+
+Flash camera and zoom camera: two more cameras drawn from the same body, and the spyglass item definition the zoom one wears
+
+## ServerUI 1.10.0
+
+Six more icons: 📡 server list, 🎭 texture cues, 📊 stats, 🎮 game mode, 🎞 video, 🔍 look up
+
 ## ServerUI 1.9.2
 
 Banner glyphs hang into the dialog's own spacing (ascent 10/9): one body line, no blank lines

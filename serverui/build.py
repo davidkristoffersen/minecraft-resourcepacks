@@ -75,7 +75,7 @@ import zipfile
 import zlib
 
 NAME = "ServerUI"
-VERSION = "1.9.2"         # bumped with ../bump.py, never by hand
+VERSION = "1.10.1"         # bumped with ../bump.py, never by hand
 HERE = pathlib.Path(__file__).parent
 SRC = HERE / "src"
 DIST = HERE / "dist"
@@ -644,6 +644,56 @@ ART = {
            "#####..",
            "#####..",
            "......."],
+    # 1.10.0: the six labels that still fell back to Unifont
+    "📡": ["#....#.",      # a dish, its stand, and a wave going out to the right
+           "##..#..",
+           "###.#..",
+           ".###...",
+           "..#..#.",
+           "..#.#..",
+           ".###..."],
+    "🎭": [".#####.",      # a theatre mask
+           "#######",
+           "#.###.#",
+           "#######",
+           "##.#.##",
+           ".##.##.",
+           "..###.."],
+    "📊": ["...#...",      # a bar chart on its baseline
+           "...#...",
+           "...#...",
+           "...#.#.",
+           ".#.#.#.",
+           ".#.#.#.",
+           "#######"],
+    "🎮": [".......",      # a gamepad: two grips, a pad left, buttons right
+           ".##.##.",
+           "#######",
+           "#.#####",
+           "###.#.#",
+           "#######",
+           ".##.##."],
+    "🎞": ["#######",      # a strip of film
+           "#.#.#.#",
+           "#######",
+           "#.....#",
+           "#######",
+           "#.#.#.#",
+           "#######"],
+    "▣": ["#######",      # a framed square: GlassRim's outlines
+          "#.....#",
+          "#.###.#",
+          "#.###.#",
+          "#.###.#",
+          "#.....#",
+          "#######"],
+    "🔍": [".####..",      # a magnifying glass
+           "#....#.",
+           "#....#.",
+           "#....#.",
+           ".####..",
+           "....##.",
+           ".....##"],
 }
 # glyphs that share a drawing
 ALIASES = {"↻": "⟳", "❔": "❓", "✅": "✔", "🎵": "♪"}

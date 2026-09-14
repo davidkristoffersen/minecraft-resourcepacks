@@ -12,10 +12,20 @@ own; it overrides the two vanilla item model definitions and puts the vanilla on
 back as the fallback:
 
   assets/minecraft/items/recovery_compass.json
-      custom_model_data flag 0 set        -> the camera with its flash lit (8 ticks after a shot)
-      custom_model_data float 0 >= 1      -> the camera loaded with film (a paper tab peeks out)
-      custom_model_data float 0 == 0      -> the empty camera (dark slot, red light)
+      custom_model_data float 1           -> which camera: 0 the plain one, 1 the flash camera
+      custom_model_data flag 0 set        -> that camera with its flash lit (8 ticks after a shot)
+      custom_model_data float 0 >= 1      -> that camera loaded with film (a paper tab peeks out)
+      custom_model_data float 0 == 0      -> that camera empty (dark slot, red light)
       no custom_model_data                -> the vanilla recovery compass, unchanged
+      (a camera made before the variants has no float 1 and still draws as the plain camera:
+       the kind dispatch falls back to it, and only a compass with no float 0 either reaches
+       the vanilla definition)
+
+  assets/minecraft/items/spyglass.json
+      the same three states for the zoom camera, vanilla spyglass as the fallback. The zoom
+      camera IS a spyglass because the client's zoom cannot be asked for: Player.isScoping()
+      is "using an item AND that item is minecraft:spyglass" (read from the 26.2 client), so
+      no component and no pack can make anything else zoom.
 
   assets/minecraft/items/filled_map.json
       custom_model_data flag 0 set        -> a polaroid: white card, the picture area tinted by
@@ -61,7 +71,7 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "Camera"
-VERSION = "1.1.0"         # bumped with ../bump.py, never by hand
+VERSION = "1.2.0"         # bumped with ../bump.py, never by hand
 
 PALETTE = {
     ".": None,
@@ -117,6 +127,38 @@ CAMERA = [
     "....pppppppp....",
     "....PPPPPPPP....",
 ]
+
+# The flash camera: the same body with a real flash unit on top, always bright.
+FLASH_CAMERA = list(CAMERA)
+FLASH_CAMERA[0] = "........kwwwwk.."
+FLASH_CAMERA[1] = "..kkkk..kFFFFFk."
+FLASH_CAMERA[2] = ".kvvvvk.kFFFFFk."
+
+# The zoom camera: the same body with a fat telephoto barrel, the shutter button moved up
+# out of its way. It is a spyglass underneath - that is the only item the client zooms with.
+ZOOM_CAMERA = [
+    "................",
+    "..kkkk...kkkkk..",
+    ".kvvvvk.kfffffk.",
+    "kkkkkkkkkkkkkkkk",
+    "kWWwwwwwwwwwrRsk",
+    "kW1wkkkkkkkkkwsk",
+    "kw2kLLLLLLLLLksk",
+    "kw3kLLBlllLLLksk",
+    "kw4kLLlbllLLLkgk",
+    "kw5kLLlllLLLLksk",
+    "kwwkLLLLLLLLLksk",
+    "kswkkkkkkkkkkwsk",
+    "ksvvvvvvvvvvvvsk",
+    "kkkkkkkkkkkkkkkk",
+    "....pppppppp....",
+    "....PPPPPPPP....",
+]
+
+# Where the flash's rays go when a shot has just been taken: over the flash unit, or either
+# side of the flash camera's housing, which already fills that row.
+RAYS = ".........y.y.y.."
+RAYS_FLASHCAM = "......y.kwwwwk.y"
 
 # The polaroid, layer 0: the card. The window (rows 2-9, cols 4-11) is clear so layer 1 shows.
 POLAROID_CARD = [
@@ -195,32 +237,32 @@ def sprite(rows):
     return 16, 16, out
 
 
-def camera_state(state):
-    """The camera in one of its three states, derived from the one drawing."""
-    rows = list(CAMERA)
+def camera_state(state, body=None, rays=RAYS):
+    """One camera in one of its three states, derived from that camera's one drawing: no film
+    (red light, no paper tab), loaded, and the moment after a shot (window and lens alight)."""
+    rows = list(body or CAMERA)
     if state == "empty":
-        rows[7] = rows[7].replace("g", "o")
+        rows = [r.replace("g", "o") for r in rows]
         rows[14] = rows[15] = "................"
     elif state == "flash":
-        rows[0] = ".........y.y.y.."
-        rows[1] = "..kkkk..ykkkkky."
-        rows[2] = rows[2].replace("f", "F")
-        rows[7] = rows[7].replace("LBllL", "LBBBL")
-        rows[8] = rows[8].replace("LlblL", "LBWBL")
-        rows[9] = rows[9].replace("LlllL", "LBBBL")
+        rows[0] = rays
+        # window and lens alight in one pass - chained replaces would whiten the glint twice over
+        alight = str.maketrans("flb", "FbB")
+        rows = [r.translate(alight) for r in rows]
     return sprite(rows)
 
 
 def textures():
     """Every texture the pack ships, by name - also what serverui/previews.py draws from."""
-    return {
-        "camera_empty": camera_state("empty"),
-        "camera_loaded": camera_state("loaded"),
-        "camera_flash": camera_state("flash"),
-        "polaroid": sprite(POLAROID_CARD),
-        "polaroid_picture": sprite(POLAROID_PICTURE),
-        "film": sprite(FILM),
-    }
+    out = {}
+    for prefix, body, rays in (("camera", CAMERA, RAYS), ("flashcam", FLASH_CAMERA, RAYS_FLASHCAM),
+                               ("zoomcam", ZOOM_CAMERA, RAYS)):
+        for state in ("empty", "loaded", "flash"):
+            out[f"{prefix}_{state}"] = camera_state(state, body, rays)
+    out["polaroid"] = sprite(POLAROID_CARD)
+    out["polaroid_picture"] = sprite(POLAROID_PICTURE)
+    out["film"] = sprite(FILM)
+    return out
 
 
 def tinted(img, rgb):
@@ -242,20 +284,55 @@ def vanilla_definition(z, item):
     return {"type": "minecraft:model", "model": f"minecraft:item/{item}"}
 
 
+def by_film(prefix, lit, fallback):
+    """One camera's three states: the flash while it is lit, otherwise empty or loaded by the
+    film count. `fallback` is what a stack with no film count at all draws as."""
+    if lit:
+        return model(f"{prefix}_flash")
+    return {
+        "type": "minecraft:range_dispatch",
+        "property": "minecraft:custom_model_data", "index": 0,
+        "entries": [
+            {"threshold": 0.0, "model": model(f"{prefix}_empty")},
+            {"threshold": 1.0, "model": model(f"{prefix}_loaded")},
+        ],
+        "fallback": fallback,
+    }
+
+
 def camera_definition(z):
+    """The recovery compass: which camera (float 1), then its state. The kind dispatch falls back
+    to the plain camera, so a camera crafted before the variants still draws as one; only a stack
+    with no film count either - a real recovery compass - reaches the vanilla definition."""
+    vanilla = vanilla_definition(z, "recovery_compass")
+
+    def by_kind(lit):
+        return {
+            "type": "minecraft:range_dispatch",
+            "property": "minecraft:custom_model_data", "index": 1,
+            "entries": [
+                {"threshold": 0.0, "model": by_film("camera", lit, vanilla)},
+                {"threshold": 1.0, "model": by_film("flashcam", lit, vanilla)},
+            ],
+            "fallback": by_film("camera", lit, vanilla),
+        }
+
     return {"model": {
         "type": "minecraft:condition",
         "property": "minecraft:custom_model_data", "index": 0,
-        "on_true": model("camera_flash"),
-        "on_false": {
-            "type": "minecraft:range_dispatch",
-            "property": "minecraft:custom_model_data", "index": 0,
-            "entries": [
-                {"threshold": 0.0, "model": model("camera_empty")},
-                {"threshold": 1.0, "model": model("camera_loaded")},
-            ],
-            "fallback": vanilla_definition(z, "recovery_compass"),
-        },
+        "on_true": by_kind(True),
+        "on_false": by_kind(False),
+    }}
+
+
+def zoom_definition(z):
+    """The spyglass: the zoom camera, vanilla spyglass for a real one."""
+    vanilla = vanilla_definition(z, "spyglass")
+    return {"model": {
+        "type": "minecraft:condition",
+        "property": "minecraft:custom_model_data", "index": 0,
+        "on_true": by_film("zoomcam", True, vanilla),
+        "on_false": by_film("zoomcam", False, vanilla),
     }}
 
 
@@ -292,8 +369,10 @@ def preview(scale=8):
     """Every sprite in a row at 8x on a dark ground, the polaroid also tinted as a photo
     of a sunny day would be - written next to this script as preview.png."""
     tex = textures()
-    shown = [tex["camera_empty"], tex["camera_loaded"], tex["camera_flash"], tex["polaroid"],
-             tex["polaroid_picture"], tinted(tex["polaroid_picture"], (120, 170, 220)), tex["film"]]
+    shown = [tex["camera_empty"], tex["camera_loaded"], tex["camera_flash"],
+             tex["flashcam_loaded"], tex["flashcam_flash"], tex["zoomcam_loaded"],
+             tex["polaroid"], tex["polaroid_picture"], tinted(tex["polaroid_picture"], (120, 170, 220)),
+             tex["film"]]
     pad = 8
     w = (len(shown) * (16 + pad) + pad) * scale
     h = (16 + 2 * pad) * scale
@@ -315,8 +394,8 @@ def preview(scale=8):
     for n, img in enumerate(shown):
         ox = (pad + n * (16 + pad)) * scale
         blit(img, ox, pad * scale)
-        if n == 3:  # the card with its picture on top, as the client composes the two layers
-            blit(shown[5], ox, pad * scale)
+        if n == 6:  # the card with its picture on top, as the client composes the two layers
+            blit(shown[8], ox, pad * scale)
     return T.png_encode(w, h, rows)
 
 
@@ -327,13 +406,16 @@ def build(version=None):
     files = {}
     for name, img in tex.items():
         files[f"assets/camera/textures/item/{name}.png"] = T.png_encode(*img)
-    for name in ("camera_empty", "camera_loaded", "camera_flash", "film"):
+    for name in tex:
+        if name.startswith("polaroid"):
+            continue
         files[f"assets/camera/models/item/{name}.json"] = (json.dumps(item_model(name), indent=2) + "\n").encode()
     files["assets/camera/models/item/polaroid.json"] = (
         json.dumps(item_model("polaroid", "polaroid_picture"), indent=2) + "\n").encode()
     files["assets/minecraft/items/recovery_compass.json"] = (json.dumps(camera_definition(z), indent=2) + "\n").encode()
     files["assets/minecraft/items/filled_map.json"] = (json.dumps(polaroid_definition(z), indent=2) + "\n").encode()
     files["assets/minecraft/items/map.json"] = (json.dumps(film_definition(z), indent=2) + "\n").encode()
+    files["assets/minecraft/items/spyglass.json"] = (json.dumps(zoom_definition(z), indent=2) + "\n").encode()
 
     cam = tex["camera_loaded"]
 
