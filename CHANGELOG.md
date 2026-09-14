@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.12.0
+
+📦 as an icon, for the shelf that gathers every plugin's custom items
+
 ## ServerUI 1.11.0
 
 ◀ as an icon, for a paged item shelf
