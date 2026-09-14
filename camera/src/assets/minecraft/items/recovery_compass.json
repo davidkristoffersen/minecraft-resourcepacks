@@ -28,8 +28,16 @@
               }
             ],
             "fallback": {
-              "type": "minecraft:model",
-              "model": "camera:item/camera_flash_in_hand"
+              "type": "minecraft:condition",
+              "property": "minecraft:using_item",
+              "on_true": {
+                "type": "minecraft:model",
+                "model": "camera:item/camera_flash_aiming"
+              },
+              "on_false": {
+                "type": "minecraft:model",
+                "model": "camera:item/camera_flash_in_hand"
+              }
             }
           }
         },
@@ -53,8 +61,16 @@
               }
             ],
             "fallback": {
-              "type": "minecraft:model",
-              "model": "camera:item/flashcam_flash_in_hand"
+              "type": "minecraft:condition",
+              "property": "minecraft:using_item",
+              "on_true": {
+                "type": "minecraft:model",
+                "model": "camera:item/flashcam_flash_aiming"
+              },
+              "on_false": {
+                "type": "minecraft:model",
+                "model": "camera:item/flashcam_flash_in_hand"
+              }
             }
           }
         }
@@ -77,8 +93,16 @@
           }
         ],
         "fallback": {
-          "type": "minecraft:model",
-          "model": "camera:item/camera_flash_in_hand"
+          "type": "minecraft:condition",
+          "property": "minecraft:using_item",
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "camera:item/camera_flash_aiming"
+          },
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "camera:item/camera_flash_in_hand"
+          }
         }
       }
     },
@@ -114,8 +138,16 @@
                     }
                   ],
                   "fallback": {
-                    "type": "minecraft:model",
-                    "model": "camera:item/camera_empty_in_hand"
+                    "type": "minecraft:condition",
+                    "property": "minecraft:using_item",
+                    "on_true": {
+                      "type": "minecraft:model",
+                      "model": "camera:item/camera_empty_aiming"
+                    },
+                    "on_false": {
+                      "type": "minecraft:model",
+                      "model": "camera:item/camera_empty_in_hand"
+                    }
                   }
                 }
               },
@@ -139,8 +171,16 @@
                     }
                   ],
                   "fallback": {
-                    "type": "minecraft:model",
-                    "model": "camera:item/camera_loaded_in_hand"
+                    "type": "minecraft:condition",
+                    "property": "minecraft:using_item",
+                    "on_true": {
+                      "type": "minecraft:model",
+                      "model": "camera:item/camera_loaded_aiming"
+                    },
+                    "on_false": {
+                      "type": "minecraft:model",
+                      "model": "camera:item/camera_loaded_in_hand"
+                    }
                   }
                 }
               }
@@ -413,8 +453,16 @@
                     }
                   ],
                   "fallback": {
-                    "type": "minecraft:model",
-                    "model": "camera:item/flashcam_empty_in_hand"
+                    "type": "minecraft:condition",
+                    "property": "minecraft:using_item",
+                    "on_true": {
+                      "type": "minecraft:model",
+                      "model": "camera:item/flashcam_empty_aiming"
+                    },
+                    "on_false": {
+                      "type": "minecraft:model",
+                      "model": "camera:item/flashcam_empty_in_hand"
+                    }
                   }
                 }
               },
@@ -438,8 +486,16 @@
                     }
                   ],
                   "fallback": {
-                    "type": "minecraft:model",
-                    "model": "camera:item/flashcam_loaded_in_hand"
+                    "type": "minecraft:condition",
+                    "property": "minecraft:using_item",
+                    "on_true": {
+                      "type": "minecraft:model",
+                      "model": "camera:item/flashcam_loaded_aiming"
+                    },
+                    "on_false": {
+                      "type": "minecraft:model",
+                      "model": "camera:item/flashcam_loaded_in_hand"
+                    }
                   }
                 }
               }
@@ -711,8 +767,16 @@
                 }
               ],
               "fallback": {
-                "type": "minecraft:model",
-                "model": "camera:item/camera_empty_in_hand"
+                "type": "minecraft:condition",
+                "property": "minecraft:using_item",
+                "on_true": {
+                  "type": "minecraft:model",
+                  "model": "camera:item/camera_empty_aiming"
+                },
+                "on_false": {
+                  "type": "minecraft:model",
+                  "model": "camera:item/camera_empty_in_hand"
+                }
               }
             }
           },
@@ -736,8 +800,16 @@
                 }
               ],
               "fallback": {
-                "type": "minecraft:model",
-                "model": "camera:item/camera_loaded_in_hand"
+                "type": "minecraft:condition",
+                "property": "minecraft:using_item",
+                "on_true": {
+                  "type": "minecraft:model",
+                  "model": "camera:item/camera_loaded_aiming"
+                },
+                "on_false": {
+                  "type": "minecraft:model",
+                  "model": "camera:item/camera_loaded_in_hand"
+                }
               }
             }
           }

@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## Camera 1.4.0
+
+aiming raises the camera in first person too: a using_item model with a raised pose, since the client only lifts the arm in third person
+
 ## ServerUI 1.13.1
 
 Patch bump by publish-packs.py: the pack changed without a version bump.

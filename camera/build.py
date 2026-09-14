@@ -66,6 +66,23 @@ its model - that is decided by the item type - so a photo still fills the screen
 you hold it and shows its picture in an item frame; the polaroid is what you see in the
 inventory, in the hotbar and on the ground.
 
+Aiming raises it, and in first person only the pack can do that
+---------------------------------------------------------------
+Holding right-click puts the camera at the player's face - but only for everybody else.
+Read from the 26.2 client: AvatarRenderer maps ItemUseAnimation.SPYGLASS to
+HumanoidModel.ArmPose.SPYGLASS for any item, so third person raises the arm on its own;
+ItemInHandRenderer's own use-animation switch has NO spyglass case (NONE, EAT, DRINK,
+BLOCK, BOW, TRIDENT, BRUSH, BUNDLE, SPEAR only), because the real spyglass's first-person
+look is not an animation at all - Player.isScoping() is hard-coded to minecraft:spyglass
+and simply hides the hands while the scope overlay covers the screen. So a camera that is
+a recovery compass stays in its ordinary held pose in first person however it is aimed.
+
+The pack puts the raise back: `minecraft:condition` on `minecraft:using_item` picks a
+second copy of the same model, `<name>_aiming`, whose first-person display transform lifts
+the camera under the crosshair and turns its lens forward (see AIM_POSE for the numbers and
+why they are those). Everything else about the two models is identical, so there is still
+only one set of art, and a player without the pack sees exactly what they saw before.
+
 Art
 ---
 16x16 sprites in the tables below, one character per pixel, `PALETTE` giving each
@@ -88,7 +105,7 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "Camera"
-VERSION = "1.3.0"         # bumped with ../bump.py, never by hand
+VERSION = "1.4.0"         # bumped with ../bump.py, never by hand
 
 PALETTE = {
     ".": None,
@@ -384,6 +401,30 @@ BODY_UV = [0, 3, 16, 13]        # the body rows of the drawing: the sides of the
 BACK_UV = [0, 1, 7, 8]          # the viewfinder corner: the end that sits at your eye
 FLASH_UV = [8, 1, 14, 4]        # the flash window: the little unit on top of the flash camera
 
+# The aim pose: where the camera goes in FIRST person while it is being held up.
+#
+# The client places a held item with ItemInHandRenderer.applyItemArmTransform, which only
+# translates: (+/-0.56, -0.52, -0.72) blocks - right/left, down, and away into the screen.
+# A display transform is applied inside that same frame (+X right, +Y up, -Z into the
+# screen) and its translation is in sixteenths, so these numbers undo that placement:
+#   x   -7   most of the way in from the +0.56 to the right, so it sits under the crosshair
+#            (for the off hand the client negates x itself, so both entries are identical)
+#   y   +3.5 lifts it from the hip
+#   z   -2   pushes it a little further out, because a camera at arm's length is a raised
+#            camera and a camera against the eye is a blindfold: at these numbers it covers
+#            21 degrees in the lower middle (screen y -0.25..-0.77 of the half-screen) and
+#            leaves the crosshair and the whole upper view clear. Idle it is off in the
+#            bottom-right corner (x +0.45..+0.80), so the move up and in reads as the raise.
+# The rotation lays the model down: its +Y is the lens (the spyglass axis it is built on),
+# and -90 about X turns +Y into -Z, so the lens points where you are looking and the
+# viewfinder end faces you; the small yaw shows an edge of the body, so it reads as an
+# object rather than a sticker. Vanilla has no such pose to copy - the real spyglass is not
+# rendered in first person at all (Player.isScoping() hides the hands and draws the scope
+# overlay instead), and ItemInHandRenderer's use-animation switch has no SPYGLASS case, so
+# a SPYGLASS-animation item that is not minecraft:spyglass keeps its ordinary held pose.
+# Third person needs nothing: AvatarRenderer maps the animation to ArmPose.SPYGLASS itself.
+AIM_POSE = {"rotation": [-90, -12, 0], "translation": [-7, 3.5, -2]}
+
 
 def box(frm, to, faces):
     return {"from": frm, "to": to, "faces": faces}
@@ -397,9 +438,11 @@ def all_faces(uv, texture="#camera", ends=None):
     return out
 
 
-def in_hand_model(name):
+def in_hand_model(name, aiming=False):
     """The camera as an object: a body, a barrel with the lens at its far end, and the flash
-    camera's unit beside it. Cut from that camera's own drawing, on the spyglass's axis."""
+    camera's unit beside it. Cut from that camera's own drawing, on the spyglass's axis.
+
+    With `aiming`, the same object with a first-person pose that raises it: see AIM_POSE."""
     prefix = name.rsplit("_", 1)[0]
     lens = LENS_UV[prefix]
     long_barrel = prefix == "zoomcam"
@@ -422,6 +465,8 @@ def in_hand_model(name):
             "thirdperson_righthand": {"translation": [0, -2, 0]},
             "thirdperson_lefthand": {"translation": [0, -2, 0]},
             "head": {"rotation": [90, 0, 0], "translation": [0, 0, -16], "scale": [1.6, 1.6, 1.6]},
+            **({"firstperson_righthand": dict(AIM_POSE),
+                "firstperson_lefthand": dict(AIM_POSE)} if aiming else {}),
         },
     }
 
@@ -433,7 +478,13 @@ def handed(name):
         "type": "minecraft:select",
         "property": "minecraft:display_context",
         "cases": [{"when": ["gui", "ground", "fixed", "on_shelf"], "model": model(name)}],
-        "fallback": {"type": "minecraft:model", "model": f"camera:item/{name}_in_hand"},
+        # held: the little camera, raised to the eye while it is being aimed
+        "fallback": {
+            "type": "minecraft:condition",
+            "property": "minecraft:using_item",
+            "on_true": {"type": "minecraft:model", "model": f"camera:item/{name}_aiming"},
+            "on_false": {"type": "minecraft:model", "model": f"camera:item/{name}_in_hand"},
+        },
     }
 
 
@@ -490,6 +541,8 @@ def build(version=None):
         if not name.startswith(("film", "polaroid")):
             files[f"assets/camera/models/item/{name}_in_hand.json"] = (
                 json.dumps(in_hand_model(name), indent=2) + "\n").encode()
+            files[f"assets/camera/models/item/{name}_aiming.json"] = (
+                json.dumps(in_hand_model(name, aiming=True), indent=2) + "\n").encode()
     files["assets/camera/models/item/polaroid.json"] = (
         json.dumps(item_model("polaroid", "polaroid_picture"), indent=2) + "\n").encode()
     files["assets/minecraft/items/recovery_compass.json"] = (json.dumps(camera_definition(z), indent=2) + "\n").encode()
