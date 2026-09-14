@@ -2,6 +2,14 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.11.0
+
+◀ as an icon, for a paged item shelf
+
+## Camera 1.3.0
+
+a real three-dimensional camera in the hand: the flat sprite in the inventory, a body, lens barrel and flash unit when it is held or raised to the face
+
 ## ServerUI 1.10.1
 
 Camera panel: three cameras over film and a polaroid, two rows a side

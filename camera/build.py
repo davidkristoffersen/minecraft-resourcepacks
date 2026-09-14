@@ -44,6 +44,23 @@ camera, flags [true] plus map_color on a photo, flags [true] on film (an empty m
 carry no custom_model_data and hit the fallback, which is read from the installed client
 jar at build time so it is always the running version's own definition.
 
+In the hand the camera is a real object, not a flat sprite
+------------------------------------------------------
+A `generated` item model is the 16x16 drawing extruded a pixel deep, which is fine in the
+inventory and reads as a card edge-on when the camera is raised to the face. The camera is
+therefore a `select` on `display_context`, exactly as vanilla's own spyglass is: the flat
+sprite in the gui, on the ground, in a frame and on a shelf, and a little three-dimensional
+camera - a body, a lens barrel, the flash unit - in either hand and on a head.
+
+Its geometry sits on the spyglass's own axis (the model's +Y points where you look, -Y is
+the end at your eye), because the raise-to-the-face animation the plugin borrows is the
+spyglass's: `ItemUseAnimation.SPYGLASS`, which is what makes the arm lift at all. So the
+lens points away from you and the viewfinder end is against your eye, and the display
+transforms are vanilla's spyglass ones. The faces are cut out of that camera's own 16x16
+drawing - the front of the drawing is the lens end, its body rows wrap the sides - so all
+nine states (three cameras x empty, loaded, flashing) follow the sprites with no second
+set of art to keep in step.
+
 Held in hand, a filled map is drawn by the client as the big map picture regardless of
 its model - that is decided by the item type - so a photo still fills the screen when
 you hold it and shows its picture in an item frame; the polaroid is what you see in the
@@ -71,7 +88,7 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "Camera"
-VERSION = "1.2.0"         # bumped with ../bump.py, never by hand
+VERSION = "1.3.0"         # bumped with ../bump.py, never by hand
 
 PALETTE = {
     ".": None,
@@ -288,13 +305,13 @@ def by_film(prefix, lit, fallback):
     """One camera's three states: the flash while it is lit, otherwise empty or loaded by the
     film count. `fallback` is what a stack with no film count at all draws as."""
     if lit:
-        return model(f"{prefix}_flash")
+        return handed(f"{prefix}_flash")
     return {
         "type": "minecraft:range_dispatch",
         "property": "minecraft:custom_model_data", "index": 0,
         "entries": [
-            {"threshold": 0.0, "model": model(f"{prefix}_empty")},
-            {"threshold": 1.0, "model": model(f"{prefix}_loaded")},
+            {"threshold": 0.0, "model": handed(f"{prefix}_empty")},
+            {"threshold": 1.0, "model": handed(f"{prefix}_loaded")},
         ],
         "fallback": fallback,
     }
@@ -360,6 +377,66 @@ def film_definition(z):
     }}
 
 
+# The lens of each camera in its own 16x16 drawing: [x0, y0, x1, y1], used as the uv of the
+# barrel. The zoom camera's telephoto is wider and its barrel longer.
+LENS_UV = {"camera": [5, 5, 12, 12], "flashcam": [5, 5, 12, 12], "zoomcam": [3, 5, 14, 12]}
+BODY_UV = [0, 3, 16, 13]        # the body rows of the drawing: the sides of the box
+BACK_UV = [0, 1, 7, 8]          # the viewfinder corner: the end that sits at your eye
+FLASH_UV = [8, 1, 14, 4]        # the flash window: the little unit on top of the flash camera
+
+
+def box(frm, to, faces):
+    return {"from": frm, "to": to, "faces": faces}
+
+
+def all_faces(uv, texture="#camera", ends=None):
+    """The four sides from one uv rectangle, the two ends from another (default: the same)."""
+    out = {side: {"uv": list(uv), "texture": texture} for side in ("north", "east", "south", "west")}
+    out["up"] = {"uv": list(ends or uv), "texture": texture}
+    out["down"] = {"uv": list(ends or uv), "texture": texture}
+    return out
+
+
+def in_hand_model(name):
+    """The camera as an object: a body, a barrel with the lens at its far end, and the flash
+    camera's unit beside it. Cut from that camera's own drawing, on the spyglass's axis."""
+    prefix = name.rsplit("_", 1)[0]
+    lens = LENS_UV[prefix]
+    long_barrel = prefix == "zoomcam"
+    elements = [
+        # the body: the end at -Y carries the viewfinder, so it is the one against your eye
+        box([5.5, 3, 5.5], [10.5, 9, 10.5], {
+            **all_faces(BODY_UV),
+            "down": {"uv": list(BACK_UV), "texture": "#camera"},
+        }),
+        # the barrel, pointing where you look, the lens on its far face
+        box([6.5, 9, 6.5], [9.5, 13.5 if long_barrel else 11.5, 9.5],
+            all_faces(lens, ends=lens)),
+    ]
+    if prefix == "flashcam":
+        elements.append(box([5.5, 9, 6.5], [7.5, 10.5, 8.5], all_faces(FLASH_UV)))
+    return {
+        "textures": {"camera": f"camera:item/{name}", "particle": f"camera:item/{name}"},
+        "elements": elements,
+        "display": {
+            "thirdperson_righthand": {"translation": [0, -2, 0]},
+            "thirdperson_lefthand": {"translation": [0, -2, 0]},
+            "head": {"rotation": [90, 0, 0], "translation": [0, 0, -16], "scale": [1.6, 1.6, 1.6]},
+        },
+    }
+
+
+def handed(name):
+    """The flat drawing where a picture is wanted, the little camera where a thing is held.
+    Vanilla's spyglass splits its own contexts exactly this way."""
+    return {
+        "type": "minecraft:select",
+        "property": "minecraft:display_context",
+        "cases": [{"when": ["gui", "ground", "fixed", "on_shelf"], "model": model(name)}],
+        "fallback": {"type": "minecraft:model", "model": f"camera:item/{name}_in_hand"},
+    }
+
+
 def item_model(*layers):
     return {"parent": "minecraft:item/generated",
             "textures": {f"layer{i}": f"camera:item/{name}" for i, name in enumerate(layers)}}
@@ -410,6 +487,9 @@ def build(version=None):
         if name.startswith("polaroid"):
             continue
         files[f"assets/camera/models/item/{name}.json"] = (json.dumps(item_model(name), indent=2) + "\n").encode()
+        if not name.startswith(("film", "polaroid")):
+            files[f"assets/camera/models/item/{name}_in_hand.json"] = (
+                json.dumps(in_hand_model(name), indent=2) + "\n").encode()
     files["assets/camera/models/item/polaroid.json"] = (
         json.dumps(item_model("polaroid", "polaroid_picture"), indent=2) + "\n").encode()
     files["assets/minecraft/items/recovery_compass.json"] = (json.dumps(camera_definition(z), indent=2) + "\n").encode()

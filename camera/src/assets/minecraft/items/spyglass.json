@@ -4,8 +4,26 @@
     "property": "minecraft:custom_model_data",
     "index": 0,
     "on_true": {
-      "type": "minecraft:model",
-      "model": "camera:item/zoomcam_flash"
+      "type": "minecraft:select",
+      "property": "minecraft:display_context",
+      "cases": [
+        {
+          "when": [
+            "gui",
+            "ground",
+            "fixed",
+            "on_shelf"
+          ],
+          "model": {
+            "type": "minecraft:model",
+            "model": "camera:item/zoomcam_flash"
+          }
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:model",
+        "model": "camera:item/zoomcam_flash_in_hand"
+      }
     },
     "on_false": {
       "type": "minecraft:range_dispatch",
@@ -15,15 +33,51 @@
         {
           "threshold": 0.0,
           "model": {
-            "type": "minecraft:model",
-            "model": "camera:item/zoomcam_empty"
+            "type": "minecraft:select",
+            "property": "minecraft:display_context",
+            "cases": [
+              {
+                "when": [
+                  "gui",
+                  "ground",
+                  "fixed",
+                  "on_shelf"
+                ],
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "camera:item/zoomcam_empty"
+                }
+              }
+            ],
+            "fallback": {
+              "type": "minecraft:model",
+              "model": "camera:item/zoomcam_empty_in_hand"
+            }
           }
         },
         {
           "threshold": 1.0,
           "model": {
-            "type": "minecraft:model",
-            "model": "camera:item/zoomcam_loaded"
+            "type": "minecraft:select",
+            "property": "minecraft:display_context",
+            "cases": [
+              {
+                "when": [
+                  "gui",
+                  "ground",
+                  "fixed",
+                  "on_shelf"
+                ],
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "camera:item/zoomcam_loaded"
+                }
+              }
+            ],
+            "fallback": {
+              "type": "minecraft:model",
+              "model": "camera:item/zoomcam_loaded_in_hand"
+            }
           }
         }
       ],
