@@ -25,7 +25,7 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "ThemeHorror"
-VERSION = "2.3.2"      # bumped with ../bump.py, never by hand
+VERSION = "2.3.3"      # bumped with ../bump.py, never by hand
 
 DRIP = (120, 8, 8, 255)
 

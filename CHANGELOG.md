@@ -2,6 +2,26 @@
 
 One entry per published version, newest first.
 
+## ThemeLab 1.0.1
+
+Patch bump by publish-packs.py: the pack changed without a version bump.
+
+## ThemeHorror 2.3.3
+
+Patch bump by publish-packs.py: the pack changed without a version bump.
+
+## ThemeCalm 1.0.1
+
+Patch bump by publish-packs.py: the pack changed without a version bump.
+
+## ServerUI 1.13.3
+
+Patch bump by publish-packs.py: the pack changed without a version bump.
+
+## MobDesigner 1.2.1
+
+Patch bump by publish-packs.py: the pack changed without a version bump.
+
 ## Camera 1.6.1
 
 26.3 removed the map_color tint source, so the filled_map definition named something the client does not know and every photo and every real map fell back to the missing-model cube

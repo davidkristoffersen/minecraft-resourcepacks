@@ -2,7 +2,7 @@
 
 The look of the Mob Designer's designed mobs (the CustomDifficulty plugin), for Minecraft Java 26.2+, **no mods**.
 
-Download: [`MobDesigner-1.2.0.zip`](MobDesigner-1.2.0.zip)
+Download: [`MobDesigner-1.2.1.zip`](MobDesigner-1.2.1.zip)
 
 A vanilla client draws every zombie from one texture, and nothing the server sends can pick
 another per mob. What it does draw per mob is the **armour layer**: an item in an armour slot

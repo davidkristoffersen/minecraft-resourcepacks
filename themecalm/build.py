@@ -17,7 +17,7 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "ThemeCalm"
-VERSION = "1.0.0"      # bumped with ../bump.py, never by hand
+VERSION = "1.0.1"      # bumped with ../bump.py, never by hand
 
 GOLD = (1.0, 0.84, 0.45)
 

@@ -75,7 +75,7 @@ import zipfile
 import zlib
 
 NAME = "ServerUI"
-VERSION = "1.13.2"         # bumped with ../bump.py, never by hand
+VERSION = "1.13.3"         # bumped with ../bump.py, never by hand
 HERE = pathlib.Path(__file__).parent
 SRC = HERE / "src"
 DIST = HERE / "dist"

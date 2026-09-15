@@ -16,7 +16,7 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "ThemeLab"
-VERSION = "1.0.0"      # bumped with ../bump.py, never by hand
+VERSION = "1.0.1"      # bumped with ../bump.py, never by hand
 
 TEAL = (0.18, 0.86, 0.90)
 CYAN = (0.30, 0.92, 1.0)
