@@ -2,7 +2,7 @@
 
 The look of the Camera plugin's camera and its photos, for Minecraft Java 26.2+, **no mods**.
 
-Download: [`Camera-1.6.0.zip`](Camera-1.6.0.zip)
+Download: [`Camera-1.6.1.zip`](Camera-1.6.1.zip)
 
 The plugin's camera is a recovery compass and its photos are filled maps - vanilla items,
 so a player without this pack still sees something sensible. The pack repaints the three

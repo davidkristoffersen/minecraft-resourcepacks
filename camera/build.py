@@ -29,7 +29,7 @@ back as the fallback:
 
   assets/minecraft/items/filled_map.json
       custom_model_data flag 0 set        -> a polaroid: white card, the picture area tinted by
-                                             the item's map_color (the plugin sets it to the
+                                             the item's average colour (until 26.3 removed the
                                              photo's average colour, so every photo's thumbnail
                                              carries its own light)
       otherwise                           -> the vanilla filled map, unchanged
@@ -40,7 +40,7 @@ back as the fallback:
       otherwise                           -> the vanilla empty map, unchanged
 
 The plugin writes exactly those components: floats [film count], flags [flashing] on the
-camera, flags [true] plus map_color on a photo, flags [true] on film (an empty map underneath). Real recovery compasses and real maps
+camera, flags [true] on a photo, flags [true] on film (an empty map underneath). Real recovery compasses and real maps
 carry no custom_model_data and hit the fallback, which is read from the installed client
 jar at build time so it is always the running version's own definition.
 
@@ -105,7 +105,7 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "Camera"
-VERSION = "1.6.0"         # bumped with ../bump.py, never by hand
+VERSION = "1.6.1"         # bumped with ../bump.py, never by hand
 
 PALETTE = {
     ".": None,
@@ -133,7 +133,7 @@ PALETTE = {
     "p": (255, 255, 255, 255),     # photo paper
     "P": (216, 216, 222, 255),     # photo paper shade / card edge
     "c": (160, 160, 170, 255),     # the scribble on a photo's border
-    # the picture area of a polaroid: greys the map_color tint multiplies
+    # the picture area of a polaroid (greys, which the map_color tint used to multiply - 26.3 removed it)
     "9": (255, 255, 255, 255),
     "8": (236, 236, 236, 255),
     "7": (216, 216, 216, 255),
@@ -247,7 +247,7 @@ FILM = [
 ]
 
 # The polaroid, layer 1: the picture, greys from light at the top to darker at the bottom,
-# tinted by map_color on the client. A brighter square top right reads as the sky's light.
+# tinted by map_color on the client until 26.3 removed it. A brighter square top right reads as the sky's light.
 POLAROID_PICTURE = [
     "................",
     "................",
@@ -387,16 +387,22 @@ def zoom_definition(z):
 
 
 def polaroid_definition(z):
+    """The polaroid, and the client's own filled_map for a real one.
+
+    **No `minecraft:map_color` tint any more.** 26.3 removed the `map_color` item component and
+    the tint source that read it, and an item definition naming a tint source the client does not
+    know **fails to parse as a whole** - so on a 26.3 client every filled_map, ours and vanilla's,
+    fell back to the missing-model cube. (Vanilla's own `items/filled_map.json` dropped the tint
+    in the same release; `vanilla_definition` picks that up by itself, as long as the pack is
+    built against a 26.3 client - `MC_VERSION=26.3` until the main server has run once.)
+
+    The picture layer is therefore drawn at full colour instead of being multiplied by the photo's
+    average. A polaroid in the inventory is the same for every photo now; the picture itself, in
+    the hand and in a frame, is unaffected - that is the map, not the item model."""
     return {"model": {
         "type": "minecraft:condition",
         "property": "minecraft:custom_model_data", "index": 0,
-        "on_true": {
-            "type": "minecraft:model", "model": "camera:item/polaroid",
-            "tints": [
-                {"type": "minecraft:constant", "value": -1},
-                {"type": "minecraft:map_color", "default": 0x8FB4DC},
-            ],
-        },
+        "on_true": {"type": "minecraft:model", "model": "camera:item/polaroid"},
         "on_false": vanilla_definition(z, "filled_map"),
     }}
 

@@ -138,10 +138,18 @@ def jar():
 
 
 def texture(z, path):
-    """Decode assets/minecraft/textures/<path> from the jar, or None without a jar."""
+    """Decode assets/minecraft/textures/<path> from the jar; None without a jar, and **None when
+    the jar simply has no such file** - a sprite that exists in one version and not the next is a
+    fact of upgrading, not a reason for the whole build to die. 26.3 dropped
+    `item/filled_map_markings.png` (explorer maps each got their own icon instead) and that one
+    missing file stopped every pack from building. Callers already test the result."""
     if z is None:
         return None
-    return png_decode(z.read(f"assets/minecraft/textures/{path}"))
+    try:
+        return png_decode(z.read(f"assets/minecraft/textures/{path}"))
+    except KeyError:
+        print(f"  note: {path} is not in the {server_version()} client - drawing without it")
+        return None
 
 
 def pack_format(z):

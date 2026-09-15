@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## Camera 1.6.1
+
+26.3 removed the map_color tint source, so the filled_map definition named something the client does not know and every photo and every real map fell back to the missing-model cube
+
 ## MobDesigner 1.2.0
 
 Every voice synthesised: 57 mono OGG lines, one per design per ambient/hurt/death, and no vanilla sound events left in the pool

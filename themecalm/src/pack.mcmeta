@@ -1,8 +1,8 @@
 {
   "pack": {
     "description": "ThemeCalm 1.0.0§7 - warm frame, warmer sun, soft chime",
-    "pack_format": 88,
-    "min_format": 88,
+    "pack_format": 97,
+    "min_format": 97,
     "max_format": 2147483647
   }
 }
