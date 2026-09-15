@@ -101,7 +101,7 @@ import voices  # noqa: E402
 VOICES = voices.VOICES     # which designs have a voice - the preview marks them
 
 NAME = "MobDesigner"
-VERSION = "1.3.1"         # bumped with ../bump.py, never by hand
+VERSION = "1.3.2"         # bumped with ../bump.py, never by hand
 NS = "mobdesigner"
 
 # ---------------------------------------------------------------- pixels
@@ -809,31 +809,80 @@ EXTRAS = {
 ARMOUR_PIECES = [f"{m}_{s}" for m in ("chainmail", "iron", "golden", "diamond", "netherite", "copper")
                  for s in ("helmet", "chestplate", "leggings", "boots")] + ["turtle_helmet"]
 
-COSTUME_SLOTS = {
-    "helmet": ("outer", HEAD["front"], (0, 8)),
-    "chestplate": ("outer", BODY["front"], (0, 12)),
-    "leggings": ("inner", LEG["front"], (0, 12)),
-    "boots": ("outer", LEG["front"], (8, 12)),
+# Where each slot sits in the front view `doll()` draws (24 wide, 36 tall at scale 1, no
+# headroom): the head at y 0-8, the body and arms at 8-20, the legs at 20-32. The icon is that
+# band of the **dressed** figure, so a hood looks like a hood on a head and a coat like a coat on
+# a body - which is what the mob looks like when you spawn it. Cutting the faces straight off the
+# costume sheet instead gave flat coloured rectangles that were hard to tell apart.
+COSTUME_CROPS = {
+    "helmet": (4, 0, 16, 9),
+    "chestplate": (2, 8, 20, 12),
+    # the two legs touch in the front view, so ANY tight crop of them is one flat colour - the
+    # trousers only read as trousers with the silhouette round them, so these two keep the hips
+    # and the empty air either side rather than filling the icon with a swatch
+    "leggings": (6, 18, 12, 14),
+    "boots": (6, 22, 12, 10),
+}
+
+# Whether a design puts anything on a slot is a question about its own sheets, not about the
+# picture: the bands above touch (a coat hangs over the top of the legs), so comparing crops
+# called every slot changed. These are the faces the armour layer draws for each slot.
+COSTUME_PAINTS = {
+    "helmet": ("outer", (HEAD, HAT)),
+    "chestplate": ("outer", (BODY, ARM)),
+    "leggings": ("inner", (LEG, BODY)),
+    "boots": ("outer", (LEG,)),
 }
 
 
-def costume_icon(sheets, slot):
-    """That slot's face off the costume sheet, scaled to fill a 16x16 item sprite."""
-    which, (u, v, w, h), (row0, row1) = COSTUME_SLOTS[slot]
+def paints(sheets, slot):
+    """Does this design paint anything on that slot's faces?"""
+    which, boxes = COSTUME_PAINTS[slot]
     src = sheets.outer if which == "outer" else sheets.inner
-    rows = row1 - row0
-    scale = max(1, min(16 // max(1, w), 16 // max(1, rows)))
+    for box in boxes:
+        for u, v, w, h in box.values():
+            for y in range(v, v + h):
+                for x in range(u, u + w):
+                    if get(src, x, y)[3]:
+                        return True
+    return False
+
+
+def crop_to_icon(img, box):
+    """A rectangle of a doll, scaled by whole pixels to fill a 16x16 item sprite and centred."""
+    x0, y0, w, h = box
+    scale = max(1, min(16 // w, 16 // h))
     out = blank(16, 16)
     ox = (16 - w * scale) // 2
-    oy = (16 - rows * scale) // 2
-    for y in range(rows):
+    oy = (16 - h * scale) // 2
+    for y in range(h):
         for x in range(w):
-            c = get(src, u + x, v + row0 + y)
-            if c is None or len(c) > 3 and c[3] == 0:
+            c = get(img, x0 + x, y0 + y)
+            if not c[3]:
                 continue
             for dy in range(scale):
                 for dx in range(scale):
                     put(out, ox + x * scale + dx, oy + y * scale + dy, c[:3])
+    return out
+
+
+def costume_icons(vid, sheets):
+    """{slot: icon} for the slots this design actually changes.
+
+    A slot this design paints nothing on is left out entirely - the carrier then draws as the
+    client's own leather piece, which says "this design puts nothing on your legs" instead of
+    showing a square that looks broken. The figure is also drawn bare as a second guard, so a
+    band that somehow comes out identical is dropped too."""
+    mob = VARIANTS[vid]["mob"]
+    bare = doll(mob, None, vid=vid, props=False)
+    worn = doll(mob, sheets, vid=vid, props=False)
+    out = {}
+    for slot, box in COSTUME_CROPS.items():
+        if not paints(sheets, slot):
+            continue
+        dressed = crop_to_icon(worn, box)
+        if crop_to_icon(bare, box)[2] != dressed[2]:
+            out[slot] = dressed
     return out
 
 
@@ -1185,7 +1234,7 @@ def eggs(z):
 
 # ---------------------------------------------------------------- the doll (preview only)
 
-def doll(mob, sheets, scale=1, vid=None, headroom=0):
+def doll(mob, sheets, scale=1, vid=None, headroom=0, props=True):
     """A front view of the dressed mob: the base skin's front faces, the leggings, the outer layer,
     the hat - plus the design's extras: wings behind the shoulders, the weapon in the right hand, a
     cube hat over a creeper, the aura motif floating beside it. 24x(36+headroom) at scale 1; the
@@ -1255,10 +1304,10 @@ def doll(mob, sheets, scale=1, vid=None, headroom=0):
         blit(sheets.outer, HEAD["front"], 8, z0)
         blit(sheets.outer, HAT["front"], 8, z0)
     # the weapon in the right hand (the viewer's left), point up
-    if "weapon" in extra:
+    if props and "weapon" in extra:
         blit(sprite16(WEAPONS[extra["weapon"][1]], WEAPON_PALETTE), (0, 0, 16, 16), -3, z0 + 10)
     # a cube hat floats over a creeper: the side texture at half size
-    if "hat" in extra and headroom >= 8:
+    if props and "hat" in extra and headroom >= 8:
         hats = hat_textures(extra["hat"][1])
         side = hats.get(f"{extra['hat'][1]}_side") or hats.get("die_5")
         for y in range(8):
@@ -1274,7 +1323,7 @@ def doll(mob, sheets, scale=1, vid=None, headroom=0):
                     if px[3]:
                         put(out, 8 + x, z0 - 5 + y, px[:3])
     # aura motifs beside it
-    if "aura" in extra:
+    if props and "aura" in extra:
         motif = aura_texture(extra["aura"][1])
         for dx, dy in ((0, z0 + 22), (17, z0 + 4)):
             blit(motif, (0, 0, 8, 8), dx, dy)
@@ -1401,21 +1450,15 @@ def build(version=None):
         files[f"assets/minecraft/items/{mob}_spawn_egg.json"] = (json.dumps(egg_definition(z, mob), indent=2) + "\n").encode()
     # the costume carriers: one icon per design per slot, and the four leather definitions that
     # select them - so a costume in a chest window looks like the costume, not like leather armour
-    drawn = {slot: [] for slot in COSTUME_SLOTS}
+    drawn = {slot: [] for slot in COSTUME_CROPS}
     for vid, s in sheets.items():
-        for slot in COSTUME_SLOTS:
-            icon = costume_icon(s, slot)
-            # a design that paints nothing on this slot gets NO case: the carrier then draws as the
-            # client's own leather piece, which says "nothing on your legs" instead of showing an
-            # empty square. Blank icons were most of the holes in the Costumes shelf.
-            if not any(row[i] for row in icon[2] for i in range(3, len(row), 4)):
-                continue
+        for slot, icon in costume_icons(vid, s).items():
             drawn[slot].append(vid)
             files[f"assets/{NS}/textures/item/costume/{slot}/{vid}.png"] = T.png_encode(*icon)
             files[f"assets/{NS}/models/item/costume/{slot}/{vid}.json"] = (json.dumps(
                 {"parent": "minecraft:item/generated",
                  "textures": {"layer0": f"{NS}:item/costume/{slot}/{vid}"}}, indent=2) + "\n").encode()
-    for slot in COSTUME_SLOTS:
+    for slot in COSTUME_CROPS:
         files[f"assets/minecraft/items/leather_{slot}.json"] = (json.dumps(override_definition(
             z, f"leather_{slot}", [(vid, f"{NS}:item/costume/{slot}/{vid}") for vid in drawn[slot]]), indent=2) + "\n").encode()
     # Every other armour piece, copied from the client jar verbatim. On 26.3 the client bakes a

@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## MobDesigner 1.3.2
+
+costume icons cut from the dressed front view instead of the sheet, so a hood looks like a hood on a head
+
 ## MobDesigner 1.3.1
 
 costume icons only where the design paints that slot, and every armour definition re-supplied to work round the 26.3 trim fault

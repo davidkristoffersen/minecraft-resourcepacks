@@ -47,6 +47,13 @@
         }
       },
       {
+        "when": "brute",
+        "model": {
+          "type": "minecraft:model",
+          "model": "mobdesigner:item/costume/chestplate/brute"
+        }
+      },
+      {
         "when": "spider-rider",
         "model": {
           "type": "minecraft:model",
