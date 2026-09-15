@@ -101,7 +101,7 @@ import voices  # noqa: E402
 VOICES = voices.VOICES     # which designs have a voice - the preview marks them
 
 NAME = "MobDesigner"
-VERSION = "1.3.2"         # bumped with ../bump.py, never by hand
+VERSION = "1.4.0"         # bumped with ../bump.py, never by hand
 NS = "mobdesigner"
 
 # ---------------------------------------------------------------- pixels
@@ -783,12 +783,21 @@ HATS = {
 EXTRAS = {
     "vampire": dict(wings=((44, 16, 28), (110, 20, 30), None), aura=("redstone", "blood_drop")),
     "arsonist": dict(wings=((30, 26, 30), (60, 50, 50), (255, 150, 40)), aura=("blaze_powder", "ember")),
-    "warlock": dict(weapon=("stick", "warlock_staff"), aura=("amethyst_shard", "rune")),
+    # a robed caster with nothing hanging off his shoulders looked unfinished: the wings layer is
+    # the only cloth a mob can wear behind it, and in amethyst it reads as the cape the staff and
+    # the rune aura were already implying
+    "warlock": dict(weapon=("stick", "warlock_staff"), aura=("amethyst_shard", "rune"),
+                    wings=((58, 38, 92), (128, 96, 190), None)),
     "brute": dict(weapon=("stick", "brute_cudgel")),
     "bandit": dict(weapon=("iron_sword", "bandit_knife")),
     "plague-bearer": dict(aura=("slime_ball", "spore")),
     "stalker": dict(aura=("coal", "wisp")),
-    "siren": dict(aura=("prismarine_shard", "note")),
+    # the only design that lives in water, and the elytra silhouette read as trailing fins the
+    # moment it was prismarine - faintly lit, because everything else of hers is
+    "siren": dict(aura=("prismarine_shard", "note"), wings=((32, 96, 104), (18, 56, 64), (150, 240, 230))),
+    # no hat for the charged creeper: the hat mechanism is a CUBE (it is an item display of a
+    # block model), which is why a bomb and a die work and why a lightning rod does not - drawn as
+    # a cube it reads as a block of dirt sitting on a creeper. Left with its spark aura instead.
     "charged-creeper": dict(aura=("glowstone_dust", "spark")),
     "boomer": dict(hat=("tnt", "bomb"), aura=("gunpowder", "fuse")),
     "chaos-creeper": dict(hat=("target", "die")),

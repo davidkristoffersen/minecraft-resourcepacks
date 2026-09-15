@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## MobDesigner 1.4.0
+
+a cape for the Warlock and fins for the Siren
+
 ## ServerUI 1.14.0
 
 chest-window controls as real pictures: page arrows, a tick for Done, a magnifier for Search, a hollow star to pin and a gold one to unpin
