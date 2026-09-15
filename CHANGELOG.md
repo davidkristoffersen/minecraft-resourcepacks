@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## MobDesigner 1.2.0
+
+Every voice synthesised: 57 mono OGG lines, one per design per ambient/hurt/death, and no vanilla sound events left in the pool
+
 ## ServerUI 1.13.2
 
 Patch bump by publish-packs.py: the pack changed without a version bump.

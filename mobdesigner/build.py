@@ -60,12 +60,15 @@ Beyond the costume (1.1.0)
   aura      `ITEM` particles resolve the item's model definition (26.2 BreakingItemParticle goes
             through ItemModelResolver), so an aura is a sprite: `item/aura/<model>`, a 16x16 that
             tiles one 8x8 motif 2x2 because an item particle shows a random quarter of the icon
-  voice     `sounds.json` events `voice.<variant>.{ambient,hurt,death}` - pools of vanilla sound
-            events at chosen pitches (`type: event`, nothing recorded) plus a few synthesised
-            signature sounds written as OGG through ffmpeg when it is installed (skipped otherwise,
-            the pools still play). The plugin silences the mob and plays these per viewer, the
-            vanilla sound to anyone without the pack - sounds are per-player packets, the one
-            perfectly gateable custom asset.
+  voice     `sounds.json` events `voice.<variant>.{ambient,hurt,death}`, every one of them a
+            **mono OGG synthesised by `voices.py`** - no vanilla sound is referenced any more.
+            A pool picks one entry, so a voice built out of `type: event` references could only
+            ever be one vanilla sound at a chosen pitch, which is exactly what it sounded like.
+            The plugin silences the mob and plays these per viewer, the mob's own vanilla sound
+            to anyone without the pack - sounds are per-player packets, the one perfectly
+            gateable custom asset. Needs a Vorbis encoder that can write mono: `oggenc` from
+            `brew install vorbis-tools`, or an ffmpeg built with libvorbis. Without one the pack
+            ships with no sounds at all and everybody hears the vanilla mob.
 
 The Hexer is a repaint of the Illusioner (`textures/entity/illager/illusioner.png`): that mob
 never spawns naturally, so a whole-type repaint leaks onto nothing - a free custom mob.
@@ -91,10 +94,14 @@ import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
+sys.path.insert(0, str(HERE))
 import themelib as T  # noqa: E402
+import voices  # noqa: E402
+
+VOICES = voices.VOICES     # which designs have a voice - the preview marks them
 
 NAME = "MobDesigner"
-VERSION = "1.1.0"         # bumped with ../bump.py, never by hand
+VERSION = "1.2.0"         # bumped with ../bump.py, never by hand
 NS = "mobdesigner"
 
 # ---------------------------------------------------------------- pixels
@@ -771,58 +778,6 @@ HATS = {
     "die": dict(base=(236, 232, 226), pips=(30, 28, 34)),
 }
 
-# voice pools: vanilla sound events with pitch and volume, picked at random per play.
-# (event, pitch, volume). A `synth` entry adds a generated signature sound to the ambient pool.
-VOICES = {
-    "vampire": dict(ambient=[("entity.bat.ambient", 0.55, 0.8), ("entity.phantom.ambient", 0.7, 0.9)],
-                    hurt=[("entity.bat.hurt", 0.6, 1.0), ("entity.zombie.hurt", 0.7, 0.8)],
-                    death=[("entity.phantom.death", 0.6, 1.0), ("entity.bat.death", 0.5, 1.0)], subtitle="Vampire hisses"),
-    "stalker": dict(ambient=[("entity.warden.listening", 1.2, 0.6), ("entity.warden.heartbeat", 1.0, 0.8)],
-                    hurt=[("entity.warden.hurt", 1.4, 0.5)], death=[("entity.warden.death", 1.5, 0.5)],
-                    synth="breath", subtitle="Stalker breathes"),
-    "warlock": dict(ambient=[("entity.evoker.ambient", 0.8, 1.0), ("entity.evoker.prepare_summon", 0.9, 0.7)],
-                    hurt=[("entity.evoker.hurt", 0.8, 1.0)], death=[("entity.evoker.death", 0.7, 1.0)],
-                    synth="chant", subtitle="Warlock chants"),
-    "siren": dict(ambient=[("entity.elder_guardian.ambient", 1.2, 0.7), ("entity.allay.ambient_without_item", 0.6, 0.8)],
-                  hurt=[("entity.drowned.hurt_water", 1.3, 1.0), ("entity.dolphin.hurt", 0.8, 0.9)],
-                  death=[("entity.elder_guardian.death", 1.3, 0.6)], synth="song", subtitle="Siren sings"),
-    "brute": dict(ambient=[("entity.ravager.ambient", 0.9, 0.9), ("entity.zombie.ambient", 0.5, 1.2)],
-                  hurt=[("entity.ravager.hurt", 0.9, 1.0), ("entity.zombie.hurt", 0.5, 1.0)],
-                  death=[("entity.ravager.death", 0.8, 1.0)], subtitle="Brute roars"),
-    "arsonist": dict(ambient=[("entity.blaze.ambient", 1.0, 0.7), ("block.fire.ambient", 0.8, 1.0)],
-                     hurt=[("entity.blaze.hurt", 1.1, 1.0)], death=[("entity.blaze.death", 0.9, 1.0), ("block.fire.extinguish", 1.0, 1.0)],
-                     subtitle="Arsonist crackles"),
-    "plague-bearer": dict(ambient=[("entity.husk.ambient", 0.7, 1.0), ("entity.slime.squish", 0.6, 0.8), ("entity.zombie_villager.ambient", 0.6, 1.0)],
-                          hurt=[("entity.husk.hurt", 0.7, 1.0), ("entity.slime.hurt", 0.7, 1.0)],
-                          death=[("entity.husk.death", 0.6, 1.0), ("entity.slime.death_small", 0.6, 1.0)], subtitle="Plague-bearer gurgles"),
-    "blinker": dict(ambient=[("entity.enderman.ambient", 1.1, 0.6), ("entity.endermite.ambient", 0.8, 0.8)],
-                    hurt=[("entity.enderman.hurt", 1.2, 0.7)], death=[("entity.enderman.death", 1.1, 0.7)], subtitle="Blinker warps"),
-    "juggernaut": dict(ambient=[("entity.zombie.ambient", 0.45, 1.2), ("block.anvil.land", 0.5, 0.4), ("entity.ravager.step", 0.7, 0.8)],
-                       hurt=[("entity.iron_golem.hurt", 0.8, 1.0), ("entity.zombie.hurt", 0.5, 1.0)],
-                       death=[("entity.iron_golem.death", 0.7, 1.0), ("block.anvil.land", 0.6, 0.8)], subtitle="Juggernaut grinds"),
-    "chaos-creeper": dict(ambient=[("entity.shulker.ambient", 1.3, 0.6), ("block.amethyst_block.chime", 0.8, 0.8)],
-                          hurt=[("entity.creeper.hurt", 1.3, 1.0)], death=[("entity.creeper.death", 1.3, 1.0), ("entity.firework_rocket.twinkle", 1.0, 0.8)],
-                          subtitle="Chaos crackles"),
-    "boomer": dict(ambient=[("entity.tnt.primed", 0.8, 0.35)], hurt=[("entity.creeper.hurt", 0.7, 1.0)],
-                   death=[("entity.generic.explode", 0.9, 0.6)], subtitle="Boomer fizzes"),
-    "charged-creeper": dict(ambient=[("entity.lightning_bolt.impact", 1.6, 0.3), ("block.beacon.ambient", 1.5, 0.5)],
-                            hurt=[("entity.creeper.hurt", 0.9, 1.0)], death=[("entity.lightning_bolt.thunder", 1.2, 0.6)], subtitle="Charged hums"),
-    "swift": dict(ambient=[("entity.zombie.ambient", 1.35, 0.8)], hurt=[("entity.zombie.hurt", 1.4, 1.0)],
-                  death=[("entity.zombie.death", 1.4, 1.0)], subtitle="Swift pants"),
-    "baby-army": dict(ambient=[("entity.zombie.ambient", 1.6, 0.7), ("entity.cat.purreow", 1.2, 0.4)],
-                      hurt=[("entity.zombie.hurt", 1.7, 1.0)], death=[("entity.zombie.death", 1.7, 1.0)], subtitle="Baby squeaks"),
-    "bandit": dict(ambient=[("entity.pillager.ambient", 0.8, 0.7), ("entity.zombie.ambient", 0.9, 1.0)],
-                   hurt=[("entity.zombie.hurt", 0.9, 1.0)], death=[("entity.zombie.death", 0.9, 1.0)], subtitle="Bandit grumbles"),
-    "pacifist": dict(ambient=[("entity.villager.ambient", 1.1, 0.6), ("block.amethyst_block.chime", 1.0, 0.4)],
-                     hurt=[("entity.villager.hurt", 1.1, 1.0)], death=[("entity.villager.death", 1.0, 1.0)], subtitle="Friendly hums"),
-    "spider-rider": dict(ambient=[("entity.spider.ambient", 0.9, 0.6), ("entity.skeleton.ambient", 0.9, 1.0)],
-                         hurt=[("entity.skeleton.hurt", 0.9, 1.0)], death=[("entity.skeleton.death", 0.9, 1.0)], subtitle="Rider rattles"),
-    "wtf": dict(ambient=[("entity.goat.screaming.ambient", 1.0, 0.5), ("entity.villager.celebrate", 1.3, 0.6), ("entity.sheep.ambient", 1.5, 0.6)],
-                hurt=[("entity.goat.screaming.hurt", 1.0, 0.5)], death=[("entity.goat.screaming.death", 1.0, 0.5)], subtitle="wtf"),
-    "hexer": dict(ambient=[("entity.illusioner.ambient", 0.8, 1.0), ("entity.illusioner.cast_spell", 0.9, 0.6)],
-                  hurt=[("entity.illusioner.hurt", 0.8, 1.0)], death=[("entity.illusioner.death", 0.7, 1.0)], subtitle="Hexer mutters"),
-}
-
 # what each design carries besides its costume: wings=(membrane, vein, glow or None),
 # weapon=(base item, model), hat=(base item, model), aura=(base item, model)
 EXTRAS = {
@@ -967,100 +922,22 @@ def hexer_texture(z):
     return out
 
 
-# ---------------------------------------------------------------- voices: sounds.json and synthesised signatures
-
-def synth_samples(kind, rate=22050):
-    """A signature sound as 16-bit mono samples - deterministic, no numpy."""
-    import math
-    import struct
-    out = []
-    rnd = noise(3)
-    if kind == "song":          # a siren: a slow rising-falling melody with vibrato and a chorus
-        notes = [440, 523.25, 659.25, 587.33, 523.25, 440]
-        n_len = int(rate * 0.45)
-        for i, f in enumerate(notes):
-            for k in range(n_len):
-                t = k / rate
-                env = math.sin(math.pi * k / n_len) ** 0.6
-                vib = 1 + 0.012 * math.sin(2 * math.pi * 5.5 * t)
-                v = 0.55 * math.sin(2 * math.pi * f * vib * t) + 0.25 * math.sin(2 * math.pi * f * 2 * vib * t + 0.3) \
-                    + 0.2 * math.sin(2 * math.pi * f * 1.004 * t)
-                out.append(v * env * 0.5)
-    elif kind == "chant":       # a warlock: a low drone with slowly moving formants
-        length = int(rate * 2.4)
-        for k in range(length):
-            t = k / rate
-            env = min(1.0, k / (rate * 0.3)) * min(1.0, (length - k) / (rate * 0.5))
-            f0 = 82 * (1 + 0.02 * math.sin(2 * math.pi * 0.7 * t))
-            v = 0
-            for hnum in range(1, 9):
-                form = 1.0 / hnum * (0.6 + 0.4 * math.sin(2 * math.pi * 0.3 * t + hnum))
-                v += form * math.sin(2 * math.pi * f0 * hnum * t)
-            out.append(v * env * 0.3)
-    else:                       # "breath": filtered noise in and out, close to the ear
-        length = int(rate * 2.2)
-        lp = 0.0
-        for k in range(length):
-            t = k / rate
-            env = 0.5 - 0.5 * math.cos(2 * math.pi * t / 2.2)
-            white = rnd() * 2 - 1
-            lp += 0.08 * (white - lp)
-            out.append(lp * env * 1.6)
-    peak = max(1e-6, max(abs(v) for v in out))
-    return b"".join(struct.pack("<h", int(max(-1, min(1, v / peak)) * 32000)) for v in out), rate
-
-
-def synth_ogg(kind):
-    """The signature sound encoded as OGG Vorbis through ffmpeg (bit-exact flags, so the same
-    input gives the same bytes); None when ffmpeg is not installed."""
-    import shutil
-    import struct
-    import subprocess
-    import tempfile
-    ffmpeg = shutil.which("ffmpeg")
-    if not ffmpeg:
-        return None
-    samples, rate = synth_samples(kind)
-    header = b"RIFF" + struct.pack("<I", 36 + len(samples)) + b"WAVEfmt " + struct.pack("<IHHIIHH", 16, 1, 1, rate, rate * 2, 2, 16) \
-        + b"data" + struct.pack("<I", len(samples))
-    with tempfile.TemporaryDirectory() as tmp:
-        wav = pathlib.Path(tmp) / f"{kind}.wav"
-        ogg = pathlib.Path(tmp) / f"{kind}.ogg"
-        wav.write_bytes(header + samples)
-        # Homebrew's ffmpeg may ship without libvorbis; its own vorbis encoder is experimental and
-        # stereo-only - and Minecraft plays a stereo file flat, without position. Fine for these
-        # (a breath at the ear, a chant in the head); a positional voice line needs libvorbis, mono.
-        for encoder in (["-c:a", "libvorbis", "-q:a", "4"], ["-c:a", "vorbis", "-strict", "experimental", "-ac", "2", "-b:a", "96k"]):
-            result = subprocess.run([ffmpeg, "-loglevel", "error", "-y", "-i", str(wav), *encoder,
-                                     "-fflags", "+bitexact", "-flags", "+bitexact", "-map_metadata", "-1", str(ogg)], capture_output=True)
-            if result.returncode == 0 and ogg.exists():
-                break
-        else:
-            return None
-        return ogg.read_bytes()
-
+# ---------------------------------------------------------------- voices
 
 def voice_files(files):
-    """sounds.json, the lang file with subtitles, and the synthesised OGGs."""
-    events = {}
-    lang = {}
-    for vid, voice in VOICES.items():
-        for kind in ("ambient", "hurt", "death"):
-            pool = [{"name": f"minecraft:{event}", "type": "event", "pitch": pitch, "volume": volume}
-                    for event, pitch, volume in voice.get(kind, [])]
-            if kind == "ambient" and voice.get("synth"):
-                data = synth_ogg(voice["synth"])
-                if data is not None:
-                    files[f"assets/{NS}/sounds/voice/{vid}.ogg"] = data
-                    pool.append({"name": f"{NS}:voice/{vid}", "volume": 0.8, "attenuation_distance": 20})
-            if not pool:
-                continue
-            key = f"voice.{vid}.{kind}"
-            events[key] = {"sounds": pool, "subtitle": f"subtitles.{NS}.{key}"}
-            lang[f"subtitles.{NS}.{key}"] = voice.get("subtitle", vid) if kind == "ambient" else (
-                f"{voice.get('subtitle', vid).split(' ')[0]} {'hurts' if kind == 'hurt' else 'dies'}")
+    """Every design's three lines as mono OGG, plus sounds.json and the subtitles.
+
+    The sounds themselves are `voices.py`: a small synthesiser and one recipe per line. Nothing
+    vanilla is referenced any more - a pool picks one entry, so a voice made of vanilla events
+    could never be more than one vanilla event, which is what it sounded like."""
+    sounds, events, lang, encoder = voices.render(NS)
+    if encoder is None:
+        print("  ! no Vorbis encoder (install vorbis-tools) - shipping without voices")
+        return
+    files.update(sounds)
     files[f"assets/{NS}/sounds.json"] = (json.dumps(events, indent=2) + "\n").encode()
     files[f"assets/{NS}/lang/en_us.json"] = (json.dumps(lang, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+    print(f"  voices: {len(sounds)} lines through {encoder}, {sum(len(v) for v in sounds.values()) // 1024} KB")
 
 
 MOB_TEXTURES = {"zombie": "entity/zombie/zombie.png", "husk": "entity/zombie/husk.png",
