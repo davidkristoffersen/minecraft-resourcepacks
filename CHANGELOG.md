@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.14.1
+
+Patch bump by publish-packs.py: the pack changed without a version bump.
+
 ## MobDesigner 1.4.0
 
 a cape for the Warlock and fins for the Siren
