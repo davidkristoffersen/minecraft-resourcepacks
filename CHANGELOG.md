@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## MobDesigner 1.3.1
+
+costume icons only where the design paints that slot, and every armour definition re-supplied to work round the 26.3 trim fault
+
 ## MobDesigner 1.3.0
 
 a costume draws as itself in the inventory: one icon per design per slot, selected on custom_model_data like the eggs

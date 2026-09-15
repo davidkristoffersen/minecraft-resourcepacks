@@ -5,13 +5,6 @@
     "index": 0,
     "cases": [
       {
-        "when": "archer",
-        "model": {
-          "type": "minecraft:model",
-          "model": "mobdesigner:item/costume/helmet/archer"
-        }
-      },
-      {
         "when": "blinker",
         "model": {
           "type": "minecraft:model",
@@ -19,24 +12,10 @@
         }
       },
       {
-        "when": "baby-army",
-        "model": {
-          "type": "minecraft:model",
-          "model": "mobdesigner:item/costume/helmet/baby-army"
-        }
-      },
-      {
         "when": "splitter",
         "model": {
           "type": "minecraft:model",
           "model": "mobdesigner:item/costume/helmet/splitter"
-        }
-      },
-      {
-        "when": "pacifist",
-        "model": {
-          "type": "minecraft:model",
-          "model": "mobdesigner:item/costume/helmet/pacifist"
         }
       },
       {
@@ -51,27 +30,6 @@
         "model": {
           "type": "minecraft:model",
           "model": "mobdesigner:item/costume/helmet/brute"
-        }
-      },
-      {
-        "when": "spider-rider",
-        "model": {
-          "type": "minecraft:model",
-          "model": "mobdesigner:item/costume/helmet/spider-rider"
-        }
-      },
-      {
-        "when": "swift",
-        "model": {
-          "type": "minecraft:model",
-          "model": "mobdesigner:item/costume/helmet/swift"
-        }
-      },
-      {
-        "when": "warlock",
-        "model": {
-          "type": "minecraft:model",
-          "model": "mobdesigner:item/costume/helmet/warlock"
         }
       },
       {

@@ -101,7 +101,7 @@ import voices  # noqa: E402
 VOICES = voices.VOICES     # which designs have a voice - the preview marks them
 
 NAME = "MobDesigner"
-VERSION = "1.3.0"         # bumped with ../bump.py, never by hand
+VERSION = "1.3.1"         # bumped with ../bump.py, never by hand
 NS = "mobdesigner"
 
 # ---------------------------------------------------------------- pixels
@@ -805,6 +805,10 @@ EXTRAS = {
 #
 # Which faces: the head's front for a helmet, the body's front for a chestplate, the leg's front
 # doubled for leggings (a 4-wide face on a 16-wide icon), the boot rows of the leg for boots.
+# every armour item, for the 26.3 trim workaround below
+ARMOUR_PIECES = [f"{m}_{s}" for m in ("chainmail", "iron", "golden", "diamond", "netherite", "copper")
+                 for s in ("helmet", "chestplate", "leggings", "boots")] + ["turtle_helmet"]
+
 COSTUME_SLOTS = {
     "helmet": ("outer", HEAD["front"], (0, 8)),
     "chestplate": ("outer", BODY["front"], (0, 12)),
@@ -1397,15 +1401,33 @@ def build(version=None):
         files[f"assets/minecraft/items/{mob}_spawn_egg.json"] = (json.dumps(egg_definition(z, mob), indent=2) + "\n").encode()
     # the costume carriers: one icon per design per slot, and the four leather definitions that
     # select them - so a costume in a chest window looks like the costume, not like leather armour
+    drawn = {slot: [] for slot in COSTUME_SLOTS}
     for vid, s in sheets.items():
         for slot in COSTUME_SLOTS:
-            files[f"assets/{NS}/textures/item/costume/{slot}/{vid}.png"] = T.png_encode(*costume_icon(s, slot))
+            icon = costume_icon(s, slot)
+            # a design that paints nothing on this slot gets NO case: the carrier then draws as the
+            # client's own leather piece, which says "nothing on your legs" instead of showing an
+            # empty square. Blank icons were most of the holes in the Costumes shelf.
+            if not any(row[i] for row in icon[2] for i in range(3, len(row), 4)):
+                continue
+            drawn[slot].append(vid)
+            files[f"assets/{NS}/textures/item/costume/{slot}/{vid}.png"] = T.png_encode(*icon)
             files[f"assets/{NS}/models/item/costume/{slot}/{vid}.json"] = (json.dumps(
                 {"parent": "minecraft:item/generated",
                  "textures": {"layer0": f"{NS}:item/costume/{slot}/{vid}"}}, indent=2) + "\n").encode()
     for slot in COSTUME_SLOTS:
         files[f"assets/minecraft/items/leather_{slot}.json"] = (json.dumps(override_definition(
-            z, f"leather_{slot}", [(vid, f"{NS}:item/costume/{slot}/{vid}") for vid in sheets]), indent=2) + "\n").encode()
+            z, f"leather_{slot}", [(vid, f"{NS}:item/costume/{slot}/{vid}") for vid in drawn[slot]]), indent=2) + "\n").encode()
+    # Every other armour piece, copied from the client jar verbatim. On 26.3 the client bakes a
+    # trim permutation it has no texture for (`item/<piece>/minecraft/sentry/minecraft/_fallback`,
+    # `_fallback` appears in neither jar nor registry) and every armour icon comes out as the
+    # missing model - a Paper 26.3 alpha fault, not ours. Re-supplying the definition from a pack
+    # is what fixed leather, which this pack already overrode, so the same is done for the rest.
+    # Harmless when Paper fixes it: these are the client's own bytes.
+    for piece in ARMOUR_PIECES:
+        if z is not None and f"assets/minecraft/items/{piece}.json" in z.namelist():
+            files[f"assets/minecraft/items/{piece}.json"] = (json.dumps(
+                {"model": vanilla_definition(z, piece)}, indent=2) + "\n").encode()
     for vid, s in sheets.items():
         files[f"assets/{NS}/equipment/{vid}.json"] = (json.dumps(equipment_definition(vid), indent=2) + "\n").encode()
         files[f"assets/{NS}/textures/entity/equipment/humanoid/{vid}.png"] = T.png_encode(*s.outer)
