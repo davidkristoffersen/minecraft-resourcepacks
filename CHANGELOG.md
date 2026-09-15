@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.14.0
+
+chest-window controls as real pictures: page arrows, a tick for Done, a magnifier for Search, a hollow star to pin and a gold one to unpin
+
 ## MobDesigner 1.3.2
 
 costume icons cut from the dressed front view instead of the sheet, so a hood looks like a hood on a head

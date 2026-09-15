@@ -1,0 +1,55 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "cases": [
+      {
+        "when": "ui/prev",
+        "model": {
+          "type": "minecraft:model",
+          "model": "serverui:item/ui/prev"
+        }
+      },
+      {
+        "when": "ui/next",
+        "model": {
+          "type": "minecraft:model",
+          "model": "serverui:item/ui/next"
+        }
+      },
+      {
+        "when": "ui/done",
+        "model": {
+          "type": "minecraft:model",
+          "model": "serverui:item/ui/done"
+        }
+      },
+      {
+        "when": "ui/pin",
+        "model": {
+          "type": "minecraft:model",
+          "model": "serverui:item/ui/pin"
+        }
+      },
+      {
+        "when": "ui/pinned",
+        "model": {
+          "type": "minecraft:model",
+          "model": "serverui:item/ui/pinned"
+        }
+      },
+      {
+        "when": "ui/search",
+        "model": {
+          "type": "minecraft:model",
+          "model": "serverui:item/ui/search"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/arrow"
+    }
+  }
+}
