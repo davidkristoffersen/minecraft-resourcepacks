@@ -4,8 +4,57 @@
     "property": "minecraft:custom_model_data",
     "index": 0,
     "on_true": {
-      "type": "minecraft:model",
-      "model": "camera:item/polaroid"
+      "type": "minecraft:select",
+      "property": "minecraft:custom_model_data",
+      "index": 0,
+      "cases": [
+        {
+          "when": "night",
+          "model": {
+            "type": "minecraft:model",
+            "model": "camera:item/polaroid_night"
+          }
+        },
+        {
+          "when": "dawn",
+          "model": {
+            "type": "minecraft:model",
+            "model": "camera:item/polaroid_dawn"
+          }
+        },
+        {
+          "when": "sky",
+          "model": {
+            "type": "minecraft:model",
+            "model": "camera:item/polaroid_sky"
+          }
+        },
+        {
+          "when": "green",
+          "model": {
+            "type": "minecraft:model",
+            "model": "camera:item/polaroid_green"
+          }
+        },
+        {
+          "when": "sand",
+          "model": {
+            "type": "minecraft:model",
+            "model": "camera:item/polaroid_sand"
+          }
+        },
+        {
+          "when": "stone",
+          "model": {
+            "type": "minecraft:model",
+            "model": "camera:item/polaroid_stone"
+          }
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:model",
+        "model": "camera:item/polaroid"
+      }
     },
     "on_false": {
       "type": "minecraft:model",

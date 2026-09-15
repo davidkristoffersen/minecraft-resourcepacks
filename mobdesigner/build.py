@@ -101,7 +101,7 @@ import voices  # noqa: E402
 VOICES = voices.VOICES     # which designs have a voice - the preview marks them
 
 NAME = "MobDesigner"
-VERSION = "1.2.1"         # bumped with ../bump.py, never by hand
+VERSION = "1.3.0"         # bumped with ../bump.py, never by hand
 NS = "mobdesigner"
 
 # ---------------------------------------------------------------- pixels
@@ -795,6 +795,44 @@ EXTRAS = {
 }
 
 # item definitions the extras override, base item -> [(string, model path)]
+# ---------------------------------------------------------------- costume icons
+#
+# The carrier pieces are leather armour, so in a chest window they draw as leather armour - which
+# tells you nothing about which costume you are holding, and on 26.3 draws as the missing model
+# anyway while Paper's trim registry is broken. Each carrier already gets `custom_model_data`
+# strings[0] = the design id, so the pack can select on it exactly as the eggs do: one 16x16 per
+# design per slot, cut from that design's own costume sheet and blown up to fill the icon.
+#
+# Which faces: the head's front for a helmet, the body's front for a chestplate, the leg's front
+# doubled for leggings (a 4-wide face on a 16-wide icon), the boot rows of the leg for boots.
+COSTUME_SLOTS = {
+    "helmet": ("outer", HEAD["front"], (0, 8)),
+    "chestplate": ("outer", BODY["front"], (0, 12)),
+    "leggings": ("inner", LEG["front"], (0, 12)),
+    "boots": ("outer", LEG["front"], (8, 12)),
+}
+
+
+def costume_icon(sheets, slot):
+    """That slot's face off the costume sheet, scaled to fill a 16x16 item sprite."""
+    which, (u, v, w, h), (row0, row1) = COSTUME_SLOTS[slot]
+    src = sheets.outer if which == "outer" else sheets.inner
+    rows = row1 - row0
+    scale = max(1, min(16 // max(1, w), 16 // max(1, rows)))
+    out = blank(16, 16)
+    ox = (16 - w * scale) // 2
+    oy = (16 - rows * scale) // 2
+    for y in range(rows):
+        for x in range(w):
+            c = get(src, u + x, v + row0 + y)
+            if c is None or len(c) > 3 and c[3] == 0:
+                continue
+            for dy in range(scale):
+                for dx in range(scale):
+                    put(out, ox + x * scale + dx, oy + y * scale + dy, c[:3])
+    return out
+
+
 def extra_overrides():
     out = {}
     for vid, extra in EXTRAS.items():
@@ -1357,6 +1395,17 @@ def build(version=None):
             {"parent": "minecraft:item/generated", "textures": {"layer0": f"{NS}:item/egg/{vid}"}}, indent=2) + "\n").encode()
     for mob in EGG_ITEMS:
         files[f"assets/minecraft/items/{mob}_spawn_egg.json"] = (json.dumps(egg_definition(z, mob), indent=2) + "\n").encode()
+    # the costume carriers: one icon per design per slot, and the four leather definitions that
+    # select them - so a costume in a chest window looks like the costume, not like leather armour
+    for vid, s in sheets.items():
+        for slot in COSTUME_SLOTS:
+            files[f"assets/{NS}/textures/item/costume/{slot}/{vid}.png"] = T.png_encode(*costume_icon(s, slot))
+            files[f"assets/{NS}/models/item/costume/{slot}/{vid}.json"] = (json.dumps(
+                {"parent": "minecraft:item/generated",
+                 "textures": {"layer0": f"{NS}:item/costume/{slot}/{vid}"}}, indent=2) + "\n").encode()
+    for slot in COSTUME_SLOTS:
+        files[f"assets/minecraft/items/leather_{slot}.json"] = (json.dumps(override_definition(
+            z, f"leather_{slot}", [(vid, f"{NS}:item/costume/{slot}/{vid}") for vid in sheets]), indent=2) + "\n").encode()
     for vid, s in sheets.items():
         files[f"assets/{NS}/equipment/{vid}.json"] = (json.dumps(equipment_definition(vid), indent=2) + "\n").encode()
         files[f"assets/{NS}/textures/entity/equipment/humanoid/{vid}.png"] = T.png_encode(*s.outer)

@@ -2,6 +2,14 @@
 
 One entry per published version, newest first.
 
+## MobDesigner 1.3.0
+
+a costume draws as itself in the inventory: one icon per design per slot, selected on custom_model_data like the eggs
+
+## Camera 1.7.0
+
+six polaroid tints chosen from the photo's own average colour, replacing the map_color tint 26.3 removed
+
 ## ThemeLab 1.0.1
 
 Patch bump by publish-packs.py: the pack changed without a version bump.

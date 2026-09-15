@@ -105,7 +105,7 @@ sys.path.insert(0, str(HERE.parent))
 import themelib as T  # noqa: E402
 
 NAME = "Camera"
-VERSION = "1.6.1"         # bumped with ../bump.py, never by hand
+VERSION = "1.7.0"         # bumped with ../bump.py, never by hand
 
 PALETTE = {
     ".": None,
@@ -306,6 +306,8 @@ def textures():
             out[f"{prefix}_{state}"] = camera_state(state, body, rays, SHELL[prefix])
     out["polaroid"] = sprite(POLAROID_CARD)
     out["polaroid_picture"] = sprite(POLAROID_PICTURE)
+    for bucket, rgb in POLAROID_TINTS.items():
+        out[f"polaroid_picture_{bucket}"] = tinted(out["polaroid_picture"], rgb)
     out["film"] = sprite(FILM)
     return out
 
@@ -386,6 +388,23 @@ def zoom_definition(z):
     }}
 
 
+# The polaroid's picture area, tinted per **bucket**: the plugin works out which one a finished
+# photo falls into from its own average colour and writes it as custom_model_data strings[0], so a
+# shelf of photos is not a shelf of identical white cards. Six is deliberate - the item model is
+# chosen from components and nothing can carry a whole photo's colour, so this is a handful of
+# recognisable kinds (a night shot, a sunset, sky, forest, desert, stone), not a per-photo tint.
+# It replaces the map_color tint 26.3 removed, and keeps working without any component at all:
+# a photo with no bucket falls back to the plain grey card.
+POLAROID_TINTS = {
+    "night": (58, 66, 96),
+    "dawn": (214, 138, 92),
+    "sky": (126, 172, 222),
+    "green": (114, 170, 104),
+    "sand": (216, 196, 150),
+    "stone": (156, 156, 162),
+}
+
+
 def polaroid_definition(z):
     """The polaroid, and the client's own filled_map for a real one.
 
@@ -402,7 +421,12 @@ def polaroid_definition(z):
     return {"model": {
         "type": "minecraft:condition",
         "property": "minecraft:custom_model_data", "index": 0,
-        "on_true": {"type": "minecraft:model", "model": "camera:item/polaroid"},
+        "on_true": {
+            "type": "minecraft:select",
+            "property": "minecraft:custom_model_data", "index": 0,
+            "cases": [{"when": bucket, "model": model(f"polaroid_{bucket}")} for bucket in POLAROID_TINTS],
+            "fallback": model("polaroid"),
+        },
         "on_false": vanilla_definition(z, "filled_map"),
     }}
 
@@ -597,6 +621,9 @@ def build(version=None):
                 json.dumps(in_hand_model(name, aiming=True), indent=2) + "\n").encode()
     files["assets/camera/models/item/polaroid.json"] = (
         json.dumps(item_model("polaroid", "polaroid_picture"), indent=2) + "\n").encode()
+    for bucket in POLAROID_TINTS:
+        files[f"assets/camera/models/item/polaroid_{bucket}.json"] = (
+            json.dumps(item_model("polaroid", f"polaroid_picture_{bucket}"), indent=2) + "\n").encode()
     files["assets/minecraft/items/recovery_compass.json"] = (json.dumps(camera_definition(z), indent=2) + "\n").encode()
     files["assets/minecraft/items/filled_map.json"] = (json.dumps(polaroid_definition(z), indent=2) + "\n").encode()
     files["assets/minecraft/items/map.json"] = (json.dumps(film_definition(z), indent=2) + "\n").encode()
