@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.16.0
+
+the wrench glyph for 🧩 Plugins' own half
+
 ## ThemeLab 1.0.2
 
 Patch bump by publish-packs.py: the pack changed without a version bump.

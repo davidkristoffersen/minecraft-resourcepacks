@@ -75,7 +75,7 @@ import zipfile
 import zlib
 
 NAME = "ServerUI"
-VERSION = "1.15.0"         # bumped with ../bump.py, never by hand
+VERSION = "1.16.0"         # bumped with ../bump.py, never by hand
 HERE = pathlib.Path(__file__).parent
 SRC = HERE / "src"
 DIST = HERE / "dist"
@@ -701,6 +701,13 @@ ART = {
            "#######",
            "#.#.#.#",
            "#######"],
+    "🔧": [".##.##.",          # a wrench: the plugins written here
+          ".#####.",
+          "..###..",
+          "...##..",
+          "..##...",
+          ".##....",
+          "##....."],
     "🖼": ["#######",          # a framed picture: the pattern gallery
           "#.....#",
           "#.+...#",
