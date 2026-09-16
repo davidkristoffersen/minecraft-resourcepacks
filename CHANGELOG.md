@@ -2,6 +2,30 @@
 
 One entry per published version, newest first.
 
+## ThemeLab 1.0.3
+
+Patch bump by publish-packs.py: the pack changed without a version bump.
+
+## ThemeHorror 2.3.5
+
+Patch bump by publish-packs.py: the pack changed without a version bump.
+
+## ThemeCalm 1.0.3
+
+Patch bump by publish-packs.py: the pack changed without a version bump.
+
+## ServerUI 1.17.1
+
+Patch bump by publish-packs.py: the pack changed without a version bump.
+
+## MobDesigner 1.4.2
+
+Patch bump by publish-packs.py: the pack changed without a version bump.
+
+## Camera 1.7.2
+
+Patch bump by publish-packs.py: the pack changed without a version bump.
+
 ## ServerUI 1.17.0
 
 the up-down glyph for the gallery's sort & filter family

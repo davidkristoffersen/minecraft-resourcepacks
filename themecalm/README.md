@@ -2,7 +2,7 @@
 
 The main server's palette, for Minecraft Java 26.2+, **no mods**.
 
-Download: [`ThemeCalm-1.0.2.zip`](ThemeCalm-1.0.2.zip)
+Download: [`ThemeCalm-1.0.3.zip`](ThemeCalm-1.0.3.zip)
 
 Deliberately quiet: a warm gold hotbar frame, a slightly warmer sun, and a soft
 amethyst chime for every menu click. Derived from the vanilla textures in the

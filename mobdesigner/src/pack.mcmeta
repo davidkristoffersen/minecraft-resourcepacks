@@ -1,8 +1,8 @@
 {
   "pack": {
-    "description": "MobDesigner 1.4.1§7 - designed mobs and their eggs",
-    "pack_format": 88,
-    "min_format": 88,
+    "description": "MobDesigner 1.4.2§7 - designed mobs and their eggs",
+    "pack_format": 97,
+    "min_format": 97,
     "max_format": 2147483647
   }
 }
