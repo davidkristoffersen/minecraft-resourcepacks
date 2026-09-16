@@ -1,8 +1,8 @@
 {
   "pack": {
-    "description": "Camera 1.7.0§7 - a camera and its polaroids",
-    "pack_format": 97,
-    "min_format": 97,
+    "description": "Camera 1.7.1§7 - a camera and its polaroids",
+    "pack_format": 88,
+    "min_format": 88,
     "max_format": 2147483647
   }
 }

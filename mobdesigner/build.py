@@ -101,7 +101,7 @@ import voices  # noqa: E402
 VOICES = voices.VOICES     # which designs have a voice - the preview marks them
 
 NAME = "MobDesigner"
-VERSION = "1.4.0"         # bumped with ../bump.py, never by hand
+VERSION = "1.4.1"         # bumped with ../bump.py, never by hand
 NS = "mobdesigner"
 
 # ---------------------------------------------------------------- pixels
