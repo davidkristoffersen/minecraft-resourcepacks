@@ -2,6 +2,10 @@
 
 One entry per published version, newest first.
 
+## ServerUI 1.17.0
+
+the up-down glyph for the gallery's sort & filter family
+
 ## ServerUI 1.16.0
 
 the wrench glyph for 🧩 Plugins' own half
